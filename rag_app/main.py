@@ -78,7 +78,7 @@ def ask_question(
         "user": current_user.email,
         "answer": answer
     }
-
+"""Authentication endpoints"""
 @app.post("/auth/register")
 def register(email: str, password: str):
     db = SessionLocal()
