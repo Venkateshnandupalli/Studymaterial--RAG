@@ -32,4 +32,9 @@ export const uploadFile = (file, onProgress) => {
 export const listDocuments = () => api.get("/documents");
 
 // ── Query ─────────────────────────────────────────────────────────────────────
-export const askQuestion = (question) => api.post("/ask", { question });
+export const askQuestion = (question, documentIds = null) => 
+  api.post("/ask", { question, document_ids: documentIds });
+
+// ── Study Aids ────────────────────────────────────────────────────────────────
+export const generateFlashcards = (docId) => api.post(`/documents/${docId}/flashcards`);
+export const generateQuiz = (docId) => api.post(`/documents/${docId}/quiz`);

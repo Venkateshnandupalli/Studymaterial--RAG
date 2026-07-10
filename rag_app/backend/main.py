@@ -4,6 +4,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from api.auth import router as auth_router
 from api.upload import router as upload_router
 from api.query import router as query_router
+from api.study import router as study_router
 
 app = FastAPI(
     title="Student Study Assistant API",
@@ -24,6 +25,7 @@ app.add_middleware(
 app.include_router(auth_router)
 app.include_router(upload_router)
 app.include_router(query_router)
+app.include_router(study_router)
 
 
 @app.get("/")

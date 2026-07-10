@@ -25,6 +25,14 @@ def generate_answer(context: str, question: str) -> str:
         "You are a helpful study assistant. Answer the user's question using ONLY "
         "the context provided below. If the answer is not present in the context, "
         "say: 'The answer is not available in the uploaded documents.'\n\n"
+        "To help the student prepare for exams, structure your answer clearly using the following markdown sections:\n"
+        "### 💡 Core Concept\n"
+        "Provide a clear 1-2 sentence high-level summary of the concept in plain English.\n\n"
+        "### 📌 Key Points & Explanations\n"
+        "Provide a detailed bulleted list of the main points. Bold key terms using **bolding**. "
+        "For each point, provide a detailed, clear explanation instead of short summaries.\n\n"
+        "### 🎓 Exam Relevance & Tips\n"
+        "Provide an exam tip, list typical questions about this topic, or highlight important formulas/dates/names to remember.\n\n"
         f"Context:\n{context}"
     )
     try:

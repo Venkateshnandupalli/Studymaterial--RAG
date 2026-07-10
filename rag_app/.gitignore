@@ -31,6 +31,10 @@ wheels/
 # Storage
 storage/
 
+# Uploads
+backend/uploads/*
+!backend/uploads/.gitkeep
+
 # IDE
 .vscode/
 .idea/

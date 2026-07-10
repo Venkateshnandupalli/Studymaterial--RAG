@@ -25,7 +25,8 @@
 - ☁️ **Cloud-Native** — Supabase handles both the database and vector similarity search (pgvector)
 - 📄 **Multi-Format** — Upload PDF, DOCX, or TXT files
 - ⚡ **Background Processing** — Documents are chunked & embedded asynchronously — no waiting
-- 🎨 **Premium UI** — Dark glassmorphism design with animated chat interface
+- 🎨 **Premium UI** — Dark glassmorphism design with animated chat interface, interactive 3D flipping study cards, and practice quizzes
+- 📂 **Targeted Study** — Filter chat search scope by selecting specific documents to query
 
 ---
 
@@ -174,7 +175,7 @@ create table document_chunks (
   created_at  timestamptz default now()
 );
 
--- Step 5: Vector similarity search function
+-- Step 5: Vector similarity search function (Basic)
 create or replace function match_document_chunks(
   query_embedding    vector(1536),
   match_count        int   default 5,
@@ -195,6 +196,33 @@ as $$
     1 - (embedding <=> query_embedding) as similarity
   from document_chunks
   where 1 - (embedding <=> query_embedding) > similarity_threshold
+  order by embedding <=> query_embedding
+  limit match_count;
+$$;
+
+-- Step 6: Vector similarity search function (With Document ID Filtering)
+create or replace function match_document_chunks_v2(
+  query_embedding    vector(1536),
+  match_count        int   default 5,
+  similarity_threshold float default 0.1,
+  filter_document_ids uuid[] default null
+)
+returns table (
+  id          uuid,
+  document_id uuid,
+  content     text,
+  similarity  float
+)
+language sql stable
+as $$
+  select
+    id,
+    document_id,
+    content,
+    1 - (embedding <=> query_embedding) as similarity
+  from document_chunks
+  where 1 - (embedding <=> query_embedding) > similarity_threshold
+    and (filter_document_ids is null or document_id = any(filter_document_ids))
   order by embedding <=> query_embedding
   limit match_count;
 $$;
@@ -269,7 +297,9 @@ npm run dev
 | `POST` | `/auth/login` | ❌ | Login and get JWT token |
 | `POST` | `/upload` | ✅ | Upload PDF / DOCX / TXT file |
 | `GET` | `/documents` | ✅ | List your uploaded documents |
-| `POST` | `/ask` | ✅ | Ask a question about your documents |
+| `POST` | `/ask` | ✅ | Ask a question about your documents (supports document filtering) |
+| `POST` | `/documents/{id}/flashcards` | ✅ | Generate 5 interactive study cards from a document |
+| `POST` | `/documents/{id}/quiz` | ✅ | Generate an interactive 3-question MCQ practice quiz from a document |
 | `GET` | `/docs` | ❌ | Swagger interactive API docs |
 | `GET` | `/health` | ❌ | Health check |
 

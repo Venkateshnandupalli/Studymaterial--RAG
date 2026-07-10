@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-import { uploadFile, listDocuments, askQuestion } from "../services/api";
+import { uploadFile, listDocuments, askQuestion, generateFlashcards, generateQuiz } from "../services/api";
 
 function getFileIcon(name = "") {
   const ext = name.split(".").pop()?.toLowerCase();
@@ -13,6 +13,19 @@ function getFileIcon(name = "") {
 function StatusBadge({ status }) {
   const map = { READY: "status-ready", PROCESSING: "status-processing", FAILED: "status-failed" };
   return <span className={`status-badge ${map[status] || "status-processing"}`}>{status}</span>;
+}
+
+function formatMessageText(text) {
+  if (!text) return "";
+  let html = text
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;");
+  html = html.replace(/^###\s+(.+)$/gm, '<h4 class="chat-heading">$1</h4>');
+  html = html.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+  html = html.replace(/^\s*[-*]\s+(.+)$/gm, '<li class="chat-list-item">$1</li>');
+  html = html.replace(/\n/g, "<br />");
+  return html;
 }
 
 export default function Dashboard() {
@@ -28,6 +41,26 @@ export default function Dashboard() {
   const [messages, setMessages] = useState([]);
   const [question, setQuestion] = useState("");
   const [asking, setAsking] = useState(false);
+
+  // Document selection state
+  const [selectedDocIds, setSelectedDocIds] = useState([]);
+
+  // Study states: Flashcards
+  const [showFlashcards, setShowFlashcards] = useState(false);
+  const [flashcards, setFlashcards] = useState([]);
+  const [currentCardIdx, setCurrentCardIdx] = useState(0);
+  const [cardFlipped, setCardFlipped] = useState(false);
+  const [loadingFlashcards, setLoadingFlashcards] = useState(false);
+
+  // Study states: Quizzes
+  const [showQuiz, setShowQuiz] = useState(false);
+  const [quizQuestions, setQuizQuestions] = useState([]);
+  const [currentQuestionIdx, setCurrentQuestionIdx] = useState(0);
+  const [selectedAnswer, setSelectedAnswer] = useState(null);
+  const [quizSubmitted, setQuizSubmitted] = useState(false);
+  const [quizScore, setQuizScore] = useState(0);
+  const [loadingQuiz, setLoadingQuiz] = useState(false);
+  const [quizFinished, setQuizFinished] = useState(false);
 
   const chatEndRef = useRef(null);
   const pollRef = useRef(null);
@@ -94,7 +127,7 @@ export default function Dashboard() {
     setAsking(true);
 
     try {
-      const res = await askQuestion(q);
+      const res = await askQuestion(q, selectedDocIds.length > 0 ? selectedDocIds : null);
       setMessages((prev) => [
         ...prev,
         {
@@ -114,6 +147,56 @@ export default function Dashboard() {
       ]);
     } finally {
       setAsking(false);
+    }
+  };
+
+  // Toggle specific document selection
+  const handleToggleDocSelection = (docId) => {
+    setSelectedDocIds((prev) => {
+      if (prev.includes(docId)) {
+        return prev.filter((id) => id !== docId);
+      } else {
+        return [...prev, docId];
+      }
+    });
+  };
+
+  // Open and load flashcards
+  const handleOpenFlashcards = async (docId) => {
+    setShowFlashcards(true);
+    setLoadingFlashcards(true);
+    setFlashcards([]);
+    setCurrentCardIdx(0);
+    setCardFlipped(false);
+    try {
+      const res = await generateFlashcards(docId);
+      setFlashcards(res.data.flashcards || []);
+    } catch (err) {
+      alert(err.response?.data?.detail || "Failed to generate flashcards.");
+      setShowFlashcards(false);
+    } finally {
+      setLoadingFlashcards(false);
+    }
+  };
+
+  // Open and load quiz
+  const handleOpenQuiz = async (docId) => {
+    setShowQuiz(true);
+    setLoadingQuiz(true);
+    setQuizQuestions([]);
+    setCurrentQuestionIdx(0);
+    setSelectedAnswer(null);
+    setQuizSubmitted(false);
+    setQuizScore(0);
+    setQuizFinished(false);
+    try {
+      const res = await generateQuiz(docId);
+      setQuizQuestions(res.data.quiz || []);
+    } catch (err) {
+      alert(err.response?.data?.detail || "Failed to generate practice quiz.");
+      setShowQuiz(false);
+    } finally {
+      setLoadingQuiz(false);
     }
   };
 
@@ -204,7 +287,27 @@ export default function Dashboard() {
                     <span className="doc-icon">{getFileIcon(doc.file_name)}</span>
                     <div className="doc-info">
                       <div className="doc-name" title={doc.file_name}>{doc.file_name}</div>
-                      <div className="doc-meta">{doc.created_at?.slice(0, 10)}</div>
+                      <div className="doc-meta-row">
+                        <span className="doc-meta">{doc.created_at?.slice(0, 10)}</span>
+                        {doc.status === "READY" && (
+                          <div className="doc-actions">
+                            <button
+                              className="doc-action-btn"
+                              onClick={() => handleOpenFlashcards(doc.id)}
+                              title="Study Flashcards"
+                            >
+                              ⚡ Card
+                            </button>
+                            <button
+                              className="doc-action-btn"
+                              onClick={() => handleOpenQuiz(doc.id)}
+                              title="Take Practice Quiz"
+                            >
+                              📝 Quiz
+                            </button>
+                          </div>
+                        )}
+                      </div>
                     </div>
                     <StatusBadge status={doc.status} />
                   </div>
@@ -231,9 +334,9 @@ export default function Dashboard() {
                 <div key={i} className={`msg msg-${msg.role}`}>
                   <span className="msg-role">{msg.role === "user" ? "You" : "StudyAI"}</span>
                   <div className={`msg-bubble${msg.isError ? " alert-error" : ""}`}
-                    style={msg.isError ? { background: "rgba(239,68,68,0.12)", border: "1px solid rgba(239,68,68,0.3)", color: "#fca5a5" } : {}}>
-                    {msg.text}
-                  </div>
+                    style={msg.isError ? { background: "rgba(239,68,68,0.12)", border: "1px solid rgba(239,68,68,0.3)", color: "#fca5a5" } : {}}
+                    dangerouslySetInnerHTML={{ __html: formatMessageText(msg.text) }}
+                  />
                   {msg.sources && (
                     <span className="msg-sources">📎 {msg.sources} source chunk{msg.sources !== 1 ? "s" : ""} used</span>
                   )}
@@ -253,6 +356,30 @@ export default function Dashboard() {
               </div>
             )}
             <div ref={chatEndRef} />
+          </div>
+
+          {/* Document selection pills */}
+          <div className="document-selector-container">
+            <div className="selector-label">Query Focus:</div>
+            <div className="pill-list">
+              <button
+                className={`pill-item ${selectedDocIds.length === 0 ? "active" : ""}`}
+                onClick={() => setSelectedDocIds([])}
+              >
+                🌐 All Documents
+              </button>
+              {documents
+                .filter((doc) => doc.status === "READY")
+                .map((doc) => (
+                  <button
+                    key={doc.id}
+                    className={`pill-item ${selectedDocIds.includes(doc.id) ? "active" : ""}`}
+                    onClick={() => handleToggleDocSelection(doc.id)}
+                  >
+                    {getFileIcon(doc.file_name)} {doc.file_name}
+                  </button>
+                ))}
+            </div>
           </div>
 
           {/* Input */}
@@ -279,6 +406,172 @@ export default function Dashboard() {
           </div>
         </div>
       </div>
+
+      {/* ── FLASHCARDS MODAL ──────────────────────────────────────────────── */}
+      {showFlashcards && (
+        <div className="study-modal-overlay" onClick={() => setShowFlashcards(false)}>
+          <div className="study-modal" onClick={(e) => e.stopPropagation()}>
+            <div className="study-modal-header">
+              <div className="study-modal-title">⚡ Study Flashcards</div>
+              <button className="close-modal-btn" onClick={() => setShowFlashcards(false)}>×</button>
+            </div>
+            <div className="study-modal-body">
+              {loadingFlashcards ? (
+                <div style={{ padding: "40px 0", textAlign: "center" }}>
+                  <span className="spinner" style={{ borderColor: "rgba(255,255,255,0.2)", borderTopColor: "var(--accent)" }} />
+                  <p style={{ marginTop: 12, color: "var(--text-secondary)", fontSize: 13 }}>Generating study cards...</p>
+                </div>
+              ) : flashcards.length === 0 ? (
+                <div style={{ color: "var(--red)", padding: "20px 0" }}>Failed to generate flashcards. Please try again.</div>
+              ) : (
+                <>
+                  <div className="quiz-progress-text">Card {currentCardIdx + 1} of {flashcards.length}</div>
+                  <div className="flashcard-container">
+                    <div className={`flashcard ${cardFlipped ? "flipped" : ""}`} onClick={() => setCardFlipped(!cardFlipped)}>
+                      <div className="flashcard-side flashcard-front">
+                        <div className="flashcard-hint">Question / Term</div>
+                        <div className="flashcard-text">{flashcards[currentCardIdx]?.front}</div>
+                      </div>
+                      <div className="flashcard-side flashcard-back">
+                        <div className="flashcard-hint">Answer / Explanation</div>
+                        <div className="flashcard-text">{flashcards[currentCardIdx]?.back}</div>
+                      </div>
+                    </div>
+                  </div>
+                </>
+              )}
+            </div>
+            {!loadingFlashcards && flashcards.length > 0 && (
+              <div className="study-modal-footer">
+                <button
+                  className="nav-arrow-btn"
+                  onClick={() => {
+                    setCurrentCardIdx((prev) => Math.max(0, prev - 1));
+                    setCardFlipped(false);
+                  }}
+                  disabled={currentCardIdx === 0}
+                >
+                  ← Previous
+                </button>
+                <div style={{ fontSize: 12, color: "var(--text-muted)", cursor: "pointer" }} onClick={() => setCardFlipped(!cardFlipped)}>
+                  [ Click card to flip ]
+                </div>
+                <button
+                  className="nav-arrow-btn"
+                  onClick={() => {
+                    setCurrentCardIdx((prev) => Math.min(flashcards.length - 1, prev + 1));
+                    setCardFlipped(false);
+                  }}
+                  disabled={currentCardIdx === flashcards.length - 1}
+                >
+                  Next →
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* ── QUIZ MODAL ────────────────────────────────────────────────────── */}
+      {showQuiz && (
+        <div className="study-modal-overlay" onClick={() => setShowQuiz(false)}>
+          <div className="study-modal" onClick={(e) => e.stopPropagation()}>
+            <div className="study-modal-header">
+              <div className="study-modal-title">📝 Practice Quiz</div>
+              <button className="close-modal-btn" onClick={() => setShowQuiz(false)}>×</button>
+            </div>
+            <div className="study-modal-body">
+              {loadingQuiz ? (
+                <div style={{ padding: "40px 0", textAlign: "center" }}>
+                  <span className="spinner" style={{ borderColor: "rgba(255,255,255,0.2)", borderTopColor: "var(--accent)" }} />
+                  <p style={{ marginTop: 12, color: "var(--text-secondary)", fontSize: 13 }}>Generating practice quiz...</p>
+                </div>
+              ) : quizQuestions.length === 0 ? (
+                <div style={{ color: "var(--red)", padding: "20px 0" }}>Failed to generate practice quiz. Please try again.</div>
+              ) : quizFinished ? (
+                <div style={{ display: "flex", flexDirection: "column", alignItems: "center", padding: "20px 0" }}>
+                  <div className="quiz-score-circle">{quizScore} / {quizQuestions.length}</div>
+                  <div className="quiz-result-title">Quiz Completed!</div>
+                  <div className="quiz-result-msg">
+                    {quizScore === quizQuestions.length
+                      ? "Perfect score! You're ready for the exam."
+                      : "Great effort! Review the explanations to reinforce your understanding."}
+                  </div>
+                  <button className="quiz-submit-btn" onClick={() => setShowQuiz(false)}>Done</button>
+                </div>
+              ) : (
+                <>
+                  <div className="quiz-progress-text">Question {currentQuestionIdx + 1} of {quizQuestions.length}</div>
+                  <div className="quiz-question-box">{quizQuestions[currentQuestionIdx]?.question}</div>
+                  <div className="quiz-options-list">
+                    {quizQuestions[currentQuestionIdx]?.options.map((opt, idx) => {
+                      const isSelected = selectedAnswer === opt;
+                      const isCorrect = opt === quizQuestions[currentQuestionIdx]?.correct_answer;
+                      let btnClass = "";
+                      if (quizSubmitted) {
+                        if (isCorrect) btnClass = "correct";
+                        else if (isSelected) btnClass = "incorrect";
+                      }
+                      return (
+                        <button
+                          key={idx}
+                          className={`quiz-option-btn ${btnClass}`}
+                          onClick={() => {
+                            if (!quizSubmitted) setSelectedAnswer(opt);
+                          }}
+                          disabled={quizSubmitted}
+                          style={selectedAnswer === opt && !quizSubmitted ? { borderColor: "var(--accent)", background: "var(--accent-glow)" } : {}}
+                        >
+                          {opt}
+                        </button>
+                      );
+                    })}
+                  </div>
+                  {quizSubmitted && (
+                    <div className="quiz-explanation-box">
+                      <strong>Explanation:</strong> {quizQuestions[currentQuestionIdx]?.explanation}
+                    </div>
+                  )}
+                </>
+              )}
+            </div>
+            {!loadingQuiz && quizQuestions.length > 0 && !quizFinished && (
+              <div className="study-modal-footer" style={{ justifyContent: "flex-end" }}>
+                {!quizSubmitted ? (
+                  <button
+                    className="quiz-submit-btn"
+                    onClick={() => {
+                      if (!selectedAnswer) return;
+                      const isCorrect = selectedAnswer === quizQuestions[currentQuestionIdx]?.correct_answer;
+                      if (isCorrect) setQuizScore((prev) => prev + 1);
+                      setQuizSubmitted(true);
+                    }}
+                    disabled={!selectedAnswer}
+                    style={!selectedAnswer ? { opacity: 0.5, cursor: "not-allowed" } : {}}
+                  >
+                    Submit Answer
+                  </button>
+                ) : (
+                  <button
+                    className="quiz-submit-btn"
+                    onClick={() => {
+                      if (currentQuestionIdx === quizQuestions.length - 1) {
+                        setQuizFinished(true);
+                      } else {
+                        setCurrentQuestionIdx((prev) => prev + 1);
+                        setSelectedAnswer(null);
+                        setQuizSubmitted(false);
+                      }
+                    }}
+                  >
+                    {currentQuestionIdx === quizQuestions.length - 1 ? "Finish Quiz" : "Next Question"}
+                  </button>
+                )}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
