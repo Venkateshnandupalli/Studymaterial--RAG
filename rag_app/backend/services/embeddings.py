@@ -19,5 +19,5 @@ def get_embedding(text: str) -> Optional[List[float]]:
         )
         return response.data[0].embedding
     except Exception as e:
-        print(f"❌ Embedding error: {e}")
+        print(f"[ERROR] Embedding error: {e}")
         return None

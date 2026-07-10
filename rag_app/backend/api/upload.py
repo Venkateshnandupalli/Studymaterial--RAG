@@ -54,7 +54,7 @@ def _process_document(doc_id: str, file_path: str, file_name: str):
 
         supabase.table("documents").update({"status": "READY"}).eq("id", doc_id).execute()
     except Exception as e:
-        print(f"❌ Processing failed for {doc_id}: {e}")
+        print(f"[ERROR] Processing failed for {doc_id}: {e}")
         supabase.table("documents").update({"status": "FAILED"}).eq("id", doc_id).execute()
     finally:
         # Clean up temp file
