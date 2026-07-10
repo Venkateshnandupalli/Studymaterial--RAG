@@ -1,13 +1,25 @@
 from openai import OpenAI
 from config import OPENAI_API_KEY
 
-client = OpenAI(api_key=OPENAI_API_KEY)
+# Determine client and model based on the API key type
+is_groq = isinstance(OPENAI_API_KEY, str) and OPENAI_API_KEY.startswith("gsk_")
+
+if is_groq:
+    client = OpenAI(
+        api_key=OPENAI_API_KEY,
+        base_url="https://api.groq.com/openai/v1"
+    )
+    DEFAULT_MODEL = "llama-3.1-8b-instant"
+else:
+    client = OpenAI(api_key=OPENAI_API_KEY)
+    DEFAULT_MODEL = "gpt-4o-mini"
 
 
 def generate_answer(context: str, question: str) -> str:
     """
-    Use GPT-4o-mini to answer a question strictly based on the provided context.
+    Generate an answer strictly based on the provided context.
     If the answer is not in the context, the model is instructed to say so.
+    Uses Groq Llama model if a Groq key is used, otherwise uses OpenAI GPT-4o-mini.
     """
     system_prompt = (
         "You are a helpful study assistant. Answer the user's question using ONLY "
@@ -17,7 +29,7 @@ def generate_answer(context: str, question: str) -> str:
     )
     try:
         response = client.chat.completions.create(
-            model="gpt-4o-mini",
+            model=DEFAULT_MODEL,
             messages=[
                 {"role": "system", "content": system_prompt},
                 {"role": "user", "content": question},
