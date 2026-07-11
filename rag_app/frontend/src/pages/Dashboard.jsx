@@ -118,8 +118,8 @@ export default function Dashboard() {
   };
 
   // ── Ask question ─────────────────────────────────────────────────
-  const handleAsk = async () => {
-    const q = question.trim();
+  const handleAsk = async (textOverride) => {
+    const q = (typeof textOverride === "string" ? textOverride : question).trim();
     if (!q || asking) return;
 
     const now = new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
@@ -380,9 +380,9 @@ export default function Dashboard() {
                   I'll answer using your exact material.
                 </p>
                 <div className="chat-suggestions">
-                  <button className="chat-suggestion">Summarize the document</button>
-                  <button className="chat-suggestion">List key concepts</button>
-                  <button className="chat-suggestion">What are the main topics?</button>
+                  <button className="chat-suggestion" onClick={() => handleAsk("Summarize the document")}>Summarize the document</button>
+                  <button className="chat-suggestion" onClick={() => handleAsk("List key concepts")}>List key concepts</button>
+                  <button className="chat-suggestion" onClick={() => handleAsk("What are the main topics?")}>What are the main topics?</button>
                 </div>
               </div>
             ) : (
