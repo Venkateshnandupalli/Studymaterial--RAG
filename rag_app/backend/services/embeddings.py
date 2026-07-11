@@ -1,123 +1,75 @@
-from typing import Optional, List
-from openai import OpenAI
+import os
+import json
+import urllib.request
+import urllib.error
+from typing import List
+
 from config import OPENAI_API_KEY
 
-client = OpenAI(api_key=OPENAI_API_KEY)
 
-# Lazy-loaded local transformer model for free mode
-_local_transformer = None
-
-
-def get_embedding(text: str) -> Optional[List[float]]:
+def get_embedding(text: str) -> List[float]:
     """
     Generate a vector embedding for the given text.
-    If a Groq key is detected (starts with 'gsk_'), we use local sentence-transformers (all-MiniLM-L6-v2)
-    and pad the resulting 384-dimensional vector with zeros to 1536 dimensions to match the database.
-    Otherwise, we use OpenAI's text-embedding-3-small model.
-    """
-    global _local_transformer
 
+    Strategy:
+    - If OPENAI_API_KEY starts with 'gsk_' (Groq key), we cannot use
+      OpenAI embeddings. Instead we call Google Gemini's embedding API
+      (gemini-embedding-001) which returns 3072-dimensional vectors.
+      We truncate to 1536 to match the existing Supabase pgvector column.
+    - Otherwise (real OpenAI key), we use text-embedding-3-small which
+      natively returns 1536-dimensional vectors.
+
+    Never loads any local ML model — safe for Render's 512 MB free tier.
+    """
     is_groq = isinstance(OPENAI_API_KEY, str) and OPENAI_API_KEY.startswith("gsk_")
 
     if is_groq:
-        import os
-        import json
-        import urllib.request
-        import urllib.error
-        
-        gemini_api_key = os.getenv("GEMINI_API_KEY")
-        if gemini_api_key:
-            try:
-                # Use Google Gemini gemini-embedding-001 API (requires zero local RAM!)
-                api_url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-embedding-001:embedContent?key={gemini_api_key}"
-                
-                req_headers = {
-                    "Content-Type": "application/json"
-                }
-                payload = {
-                    "model": "models/gemini-embedding-001",
-                    "content": {
-                        "parts": [
-                            {"text": text}
-                        ]
-                    }
-                }
-                
-                req = urllib.request.Request(
-                    api_url,
-                    data=json.dumps(payload).encode("utf-8"),
-                    headers=req_headers,
-                    method="POST"
-                )
-                
-                with urllib.request.urlopen(req, timeout=10) as response:
-                    res_data = json.loads(response.read().decode("utf-8"))
-                    raw_emb = res_data["embedding"]["values"]
-                    # Pad from 768 to 1536 dimensions to fit the Supabase schema
-                    return raw_emb + [0.0] * (1536 - len(raw_emb))
-            except urllib.error.HTTPError as e:
-                error_body = e.read().decode('utf-8')
-                raise RuntimeError(f"Gemini Embedding API failed (HTTP {e.code}: {e.reason}) - {error_body}")
-            except Exception as e:
-                raise RuntimeError(f"Gemini Embedding connection failed: {str(e)}")
-
-        hf_token = os.getenv("HF_TOKEN")
-        try:
-            # Use Hugging Face Serverless Inference API (requires zero local RAM!)
-            model_id = "sentence-transformers/all-MiniLM-L6-v2"
-            api_url = f"https://api-inference.huggingface.co/pipeline/feature-extraction/{model_id}"
-            
-            req_headers = {
-                "Content-Type": "application/json"
-            }
-            if hf_token:
-                req_headers["Authorization"] = f"Bearer {hf_token}"
-                
-            payload = {
-                "inputs": [text],
-                "options": {"wait_for_model": True}
-            }
-            
-            req = urllib.request.Request(
-                api_url,
-                data=json.dumps(payload).encode("utf-8"),
-                headers=req_headers,
-                method="POST"
+        gemini_api_key = os.getenv("GEMINI_API_KEY", "").strip()
+        if not gemini_api_key:
+            raise RuntimeError(
+                "GEMINI_API_KEY is not set. "
+                "Add it to your Render environment variables."
             )
-            
-            with urllib.request.urlopen(req, timeout=10) as response:
-                res_data = json.loads(response.read().decode("utf-8"))
-                raw_emb = res_data[0]
-                # Pad to 1536 dimensions to fit the Supabase schema
-                return raw_emb + [0.0] * (1536 - len(raw_emb))
+
+        api_url = (
+            "https://generativelanguage.googleapis.com/v1beta"
+            f"/models/gemini-embedding-001:embedContent?key={gemini_api_key}"
+        )
+        payload = {
+            "model": "models/gemini-embedding-001",
+            "content": {
+                "parts": [{"text": text}]
+            },
+        }
+        req = urllib.request.Request(
+            api_url,
+            data=json.dumps(payload).encode("utf-8"),
+            headers={"Content-Type": "application/json"},
+            method="POST",
+        )
+        try:
+            with urllib.request.urlopen(req, timeout=15) as resp:
+                data = json.loads(resp.read().decode("utf-8"))
+                values: List[float] = data["embedding"]["values"]
+                # gemini-embedding-001 outputs 3072 dims; truncate to 1536
+                # to match the Supabase pgvector column size.
+                return values[:1536]
         except urllib.error.HTTPError as e:
-            error_body = e.read().decode('utf-8')
-            raise RuntimeError(f"Hugging Face API failed (HTTP {e.code}: {e.reason}) - {error_body}")
-        except Exception as e:
-            raise RuntimeError(f"Hugging Face connection failed: {str(e)}")
-
-        # Skip local model loading if running on Render free tier to prevent OOM crash
-        is_render = os.getenv("RENDER") == "true"
-        if is_render:
-            raise RuntimeError("HF_TOKEN is missing or API failed. Skipping local model load on Render to prevent OOM crash.")
-
-        try:
-            if _local_transformer is None:
-                from sentence_transformers import SentenceTransformer
-                _local_transformer = SentenceTransformer('all-MiniLM-L6-v2')
-            
-            # Generate 384-dimensional local embedding
-            raw_emb = _local_transformer.encode(text).tolist()
-            # Pad to 1536 dimensions to fit the Supabase schema
-            return raw_emb + [0.0] * (1536 - len(raw_emb))
-        except Exception as e:
-            raise RuntimeError(f"Local embedding model failed: {str(e)}")
-    else:
-        try:
-            response = client.embeddings.create(
-                model="text-embedding-3-small",
-                input=text,
+            body = e.read().decode("utf-8")
+            raise RuntimeError(
+                f"Gemini API error {e.code} {e.reason}: {body}"
             )
-            return response.data[0].embedding
         except Exception as e:
-            raise RuntimeError(f"OpenAI embedding failed: {str(e)}")
+            raise RuntimeError(f"Gemini embedding request failed: {e}")
+
+    # ── Real OpenAI key path ────────────────────────────────────────────────
+    from openai import OpenAI
+    client = OpenAI(api_key=OPENAI_API_KEY)
+    try:
+        response = client.embeddings.create(
+            model="text-embedding-3-small",
+            input=text,
+        )
+        return response.data[0].embedding
+    except Exception as e:
+        raise RuntimeError(f"OpenAI embedding failed: {e}")

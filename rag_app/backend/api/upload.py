@@ -41,9 +41,13 @@ def _process_document(doc_id: str, file_path: str, file_name: str):
 
         chunks = chunk_text(text)
         for idx, chunk_content in enumerate(chunks):
-            embedding = get_embedding(chunk_content)
-            if embedding is None:
-                continue
+            try:
+                embedding = get_embedding(chunk_content)
+            except Exception as emb_err:
+                print(f"[ERROR] Embedding chunk {idx} failed for {doc_id}: {emb_err}")
+                supabase.table("documents").update({"status": "FAILED"}).eq("id", doc_id).execute()
+                return
+
             supabase.table("document_chunks").insert({
                 "id": str(uuid.uuid4()),
                 "document_id": doc_id,
