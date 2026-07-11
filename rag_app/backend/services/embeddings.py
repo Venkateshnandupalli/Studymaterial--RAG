@@ -45,6 +45,12 @@ def get_embedding(text: str) -> Optional[List[float]]:
                 print(f"[WARNING] HF Inference API exception: {e}. Falling back to local model.")
 
         # Local fallback if HF_TOKEN is not set or API request failed
+        # Skip local model loading if running on Render free tier to prevent OOM crash
+        is_render = os.getenv("RENDER") == "true"
+        if is_render:
+            print("[ERROR] HF_TOKEN is missing or failed on Render. Skipping local sentence-transformers load to prevent OOM crash.")
+            return None
+
         try:
             if _local_transformer is None:
                 from sentence_transformers import SentenceTransformer
