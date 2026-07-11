@@ -39,4 +39,6 @@ def root():
 
 @app.get("/health")
 def health():
+    # Reload trigger comment
     return {"status": "ok"}
+
