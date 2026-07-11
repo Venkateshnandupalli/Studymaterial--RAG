@@ -9,7 +9,7 @@ if is_groq:
         api_key=OPENAI_API_KEY,
         base_url="https://api.groq.com/openai/v1"
     )
-    DEFAULT_MODEL = "llama-3.1-8b-instant"
+    DEFAULT_MODEL = "llama-3.3-70b-versatile"
 else:
     client = OpenAI(api_key=OPENAI_API_KEY)
     DEFAULT_MODEL = "gpt-4o-mini"
