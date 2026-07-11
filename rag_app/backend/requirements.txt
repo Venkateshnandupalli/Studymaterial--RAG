@@ -13,6 +13,8 @@ python-jose[cryptography]>=3.3.0
 supabase>=2.5.3
 
 # ── AI / LLM ─────────────────────────────────────────────────────────────────
+--extra-index-url https://download.pytorch.org/whl/cpu
+torch
 openai>=1.35.14
 sentence-transformers>=3.0.0
 
