@@ -34,57 +34,93 @@ export default function Login() {
 
   return (
     <div className="auth-page">
-      <div className="bg-orb bg-orb-1" />
-      <div className="bg-orb bg-orb-2" />
+      {/* ── Left Hero Panel ────────────────────────────────────────── */}
+      <div className="auth-hero">
+        <div className="auth-hero-grid" />
+        <div className="auth-hero-content">
+          <div className="hero-logo">
+            <div className="hero-logo-icon">🎓</div>
+            <div className="hero-logo-text">StudyAI</div>
+          </div>
 
-      <div className="auth-card">
-        <div className="brand">
-          <div className="brand-icon">🎓</div>
-          <h1>Welcome back</h1>
-          <p>Sign in to your StudyAI account</p>
+          <h2 className="hero-tagline">
+            Study Smarter,<br />
+            <span className="hero-tagline-highlight">Not Harder.</span>
+          </h2>
+
+          <p className="hero-sub">
+            Upload your study materials and let AI help you master them —
+            through smart Q&amp;A, flashcards, and practice quizzes.
+          </p>
+
+          <div className="hero-features">
+            <div className="hero-feature">
+              <div className="hero-feature-icon">📄</div>
+              Upload PDFs, DOCX &amp; TXT documents
+            </div>
+            <div className="hero-feature">
+              <div className="hero-feature-icon">🤖</div>
+              Ask questions in plain English, get instant answers
+            </div>
+            <div className="hero-feature">
+              <div className="hero-feature-icon">⚡</div>
+              Auto-generate flashcards &amp; practice quizzes
+            </div>
+          </div>
         </div>
+      </div>
 
-        {error && <div className="alert alert-error">⚠️ {error}</div>}
-
-        <form onSubmit={handleSubmit}>
-          <div className="form-group">
-            <label className="form-label" htmlFor="login-email">Email Address</label>
-            <input
-              id="login-email"
-              className="form-input"
-              type="email"
-              name="email"
-              placeholder="john@example.com"
-              value={form.email}
-              onChange={handleChange}
-              autoComplete="email"
-              autoFocus
-            />
+      {/* ── Right Form Panel ───────────────────────────────────────── */}
+      <div className="auth-form-side">
+        <div className="auth-card">
+          <div className="brand">
+            <div className="brand-icon">🎓</div>
+            <h1>Welcome back</h1>
+            <p>Sign in to continue studying</p>
           </div>
 
-          <div className="form-group">
-            <label className="form-label" htmlFor="login-password">Password</label>
-            <input
-              id="login-password"
-              className="form-input"
-              type="password"
-              name="password"
-              placeholder="Your password"
-              value={form.password}
-              onChange={handleChange}
-              autoComplete="current-password"
-            />
-          </div>
+          {error && <div className="alert alert-error">⚠️ {error}</div>}
 
-          <button className="btn btn-primary" type="submit" disabled={loading}>
-            {loading ? <><span className="spinner" /> Signing in…</> : "Sign In →"}
-          </button>
-        </form>
+          <form onSubmit={handleSubmit}>
+            <div className="form-group">
+              <label className="form-label" htmlFor="login-email">Email Address</label>
+              <input
+                id="login-email"
+                className="form-input"
+                type="email"
+                name="email"
+                placeholder="john@example.com"
+                value={form.email}
+                onChange={handleChange}
+                autoComplete="email"
+                autoFocus
+              />
+            </div>
 
-        <p className="auth-footer">
-          Don't have an account?{" "}
-          <Link className="link" to="/signup">Create one</Link>
-        </p>
+            <div className="form-group">
+              <label className="form-label" htmlFor="login-password">Password</label>
+              <input
+                id="login-password"
+                className="form-input"
+                type="password"
+                name="password"
+                placeholder="Your password"
+                value={form.password}
+                onChange={handleChange}
+                autoComplete="current-password"
+              />
+            </div>
+
+            <button className="btn btn-primary" type="submit" disabled={loading} id="login-btn">
+              {loading ? <><span className="spinner" /> Signing in…</> : "Sign In →"}
+            </button>
+          </form>
+
+          <p className="auth-footer">
+            Don't have an account?{" "}
+            <Link className="link" to="/signup">Create one free</Link>
+          </p>
+        </div>
       </div>
     </div>
   );

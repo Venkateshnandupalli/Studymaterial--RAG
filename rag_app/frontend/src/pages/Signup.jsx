@@ -38,75 +38,107 @@ export default function Signup() {
 
   return (
     <div className="auth-page">
-      {/* Decorative background orbs */}
-      <div className="bg-orb bg-orb-1" />
-      <div className="bg-orb bg-orb-2" />
+      {/* ── Left Hero Panel ────────────────────────────────────────── */}
+      <div className="auth-hero">
+        <div className="auth-hero-grid" />
+        <div className="auth-hero-content">
+          <div className="hero-logo">
+            <div className="hero-logo-icon">🎓</div>
+            <div className="hero-logo-text">StudyAI</div>
+          </div>
 
-      <div className="auth-card">
-        {/* Brand */}
-        <div className="brand">
-          <div className="brand-icon">🎓</div>
-          <h1>StudyAI</h1>
-          <p>Create your account to get started</p>
+          <h2 className="hero-tagline">
+            Your AI-Powered<br />
+            <span className="hero-tagline-highlight">Study Companion.</span>
+          </h2>
+
+          <p className="hero-sub">
+            Join thousands of students who use StudyAI to ace their exams.
+            Upload your notes and let AI do the heavy lifting.
+          </p>
+
+          <div className="hero-features">
+            <div className="hero-feature">
+              <div className="hero-feature-icon">🔐</div>
+              Secure, private — your documents belong to you
+            </div>
+            <div className="hero-feature">
+              <div className="hero-feature-icon">📚</div>
+              RAG-powered answers from your exact study material
+            </div>
+            <div className="hero-feature">
+              <div className="hero-feature-icon">🏆</div>
+              Flashcards &amp; quizzes to lock in what you learn
+            </div>
+          </div>
         </div>
+      </div>
 
-        {/* Alerts */}
-        {error && <div className="alert alert-error">⚠️ {error}</div>}
-        {success && <div className="alert alert-success">✅ {success}</div>}
-
-        {/* Form */}
-        <form onSubmit={handleSubmit}>
-          <div className="form-group">
-            <label className="form-label" htmlFor="signup-name">Full Name</label>
-            <input
-              id="signup-name"
-              className="form-input"
-              type="text"
-              name="name"
-              placeholder="John Doe"
-              value={form.name}
-              onChange={handleChange}
-              autoComplete="name"
-            />
+      {/* ── Right Form Panel ───────────────────────────────────────── */}
+      <div className="auth-form-side">
+        <div className="auth-card">
+          <div className="brand">
+            <div className="brand-icon">🎓</div>
+            <h1>Create your account</h1>
+            <p>Start studying smarter today</p>
           </div>
 
-          <div className="form-group">
-            <label className="form-label" htmlFor="signup-email">Email Address</label>
-            <input
-              id="signup-email"
-              className="form-input"
-              type="email"
-              name="email"
-              placeholder="john@example.com"
-              value={form.email}
-              onChange={handleChange}
-              autoComplete="email"
-            />
-          </div>
+          {error   && <div className="alert alert-error">⚠️ {error}</div>}
+          {success && <div className="alert alert-success">✅ {success}</div>}
 
-          <div className="form-group">
-            <label className="form-label" htmlFor="signup-password">Password</label>
-            <input
-              id="signup-password"
-              className="form-input"
-              type="password"
-              name="password"
-              placeholder="At least 6 characters"
-              value={form.password}
-              onChange={handleChange}
-              autoComplete="new-password"
-            />
-          </div>
+          <form onSubmit={handleSubmit}>
+            <div className="form-group">
+              <label className="form-label" htmlFor="signup-name">Full Name</label>
+              <input
+                id="signup-name"
+                className="form-input"
+                type="text"
+                name="name"
+                placeholder="John Doe"
+                value={form.name}
+                onChange={handleChange}
+                autoComplete="name"
+              />
+            </div>
 
-          <button className="btn btn-primary" type="submit" disabled={loading}>
-            {loading ? <><span className="spinner" /> Creating account…</> : "Create Account →"}
-          </button>
-        </form>
+            <div className="form-group">
+              <label className="form-label" htmlFor="signup-email">Email Address</label>
+              <input
+                id="signup-email"
+                className="form-input"
+                type="email"
+                name="email"
+                placeholder="john@example.com"
+                value={form.email}
+                onChange={handleChange}
+                autoComplete="email"
+              />
+            </div>
 
-        <p className="auth-footer">
-          Already have an account?{" "}
-          <Link className="link" to="/login">Sign in</Link>
-        </p>
+            <div className="form-group">
+              <label className="form-label" htmlFor="signup-password">Password</label>
+              <input
+                id="signup-password"
+                className="form-input"
+                type="password"
+                name="password"
+                placeholder="At least 6 characters"
+                value={form.password}
+                onChange={handleChange}
+                autoComplete="new-password"
+              />
+            </div>
+
+            <button className="btn btn-primary" type="submit" disabled={loading} id="signup-btn">
+              {loading ? <><span className="spinner" /> Creating account…</> : "Create Account →"}
+            </button>
+          </form>
+
+          <p className="auth-footer">
+            Already have an account?{" "}
+            <Link className="link" to="/login">Sign in</Link>
+          </p>
+        </div>
       </div>
     </div>
   );

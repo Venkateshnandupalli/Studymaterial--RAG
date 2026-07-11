@@ -122,27 +122,32 @@ export default function Dashboard() {
     const q = question.trim();
     if (!q || asking) return;
 
-    setMessages((prev) => [...prev, { role: "user", text: q }]);
+    const now = new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+    setMessages((prev) => [...prev, { role: "user", text: q, time: now }]);
     setQuestion("");
     setAsking(true);
 
     try {
       const res = await askQuestion(q, selectedDocIds.length > 0 ? selectedDocIds : null);
+      const botTime = new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
       setMessages((prev) => [
         ...prev,
         {
           role: "bot",
           text: res.data.answer,
           sources: res.data.sources_used,
+          time: botTime,
         },
       ]);
     } catch (err) {
+      const errTime = new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
       setMessages((prev) => [
         ...prev,
         {
           role: "bot",
           text: err.response?.data?.detail || "Something went wrong. Please try again.",
           isError: true,
+          time: errTime,
         },
       ]);
     } finally {
@@ -224,9 +229,10 @@ export default function Dashboard() {
 
   return (
     <div className="dashboard">
-      {/* Background orbs */}
+      {/* Aurora background orbs */}
       <div className="bg-orb bg-orb-1" />
       <div className="bg-orb bg-orb-2" />
+      <div className="bg-orb bg-orb-3" />
 
       {/* Navbar */}
       <nav className="navbar">
@@ -290,7 +296,7 @@ export default function Dashboard() {
 
           {/* Documents list */}
           <div className="panel" style={{ marginTop: 20 }}>
-            <h2 className="panel-title"><span>📚</span> Your Documents</h2>
+            <h2 className="panel-title"><span>📚</span> Your Documents<span className="panel-title-badge">{documents.length}</span></h2>
             {documents.length === 0 ? (
               <div style={{ color: "var(--text-muted)", fontSize: 14, textAlign: "center", padding: "16px 0" }}>
                 No documents yet. Upload one to get started!
@@ -356,9 +362,12 @@ export default function Dashboard() {
             ) : (
               messages.map((msg, i) => (
                 <div key={i} className={`msg msg-${msg.role}`}>
-                  <span className="msg-role">{msg.role === "user" ? "You" : "StudyAI"}</span>
+                  <div className="msg-header">
+                    <span className="msg-role">{msg.role === "user" ? "You" : "StudyAI"}</span>
+                    {msg.time && <span className="msg-time">{msg.time}</span>}
+                  </div>
                   <div className={`msg-bubble${msg.isError ? " alert-error" : ""}`}
-                    style={msg.isError ? { background: "rgba(239,68,68,0.12)", border: "1px solid rgba(239,68,68,0.3)", color: "#fca5a5" } : {}}
+                    style={msg.isError ? { background: "rgba(244,63,94,0.12)", border: "1px solid rgba(244,63,94,0.3)", color: "#fda4af" } : {}}
                     dangerouslySetInnerHTML={{ __html: formatMessageText(msg.text) }}
                   />
                   {msg.sources && (
