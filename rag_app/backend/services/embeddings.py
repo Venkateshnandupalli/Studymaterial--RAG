@@ -35,6 +35,7 @@ def get_embedding(text: str) -> Optional[List[float]]:
                     "Content-Type": "application/json"
                 }
                 payload = {
+                    "model": "models/gemini-embedding-001",
                     "content": {
                         "parts": [
                             {"text": text}
