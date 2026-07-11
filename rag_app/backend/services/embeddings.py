@@ -26,37 +26,38 @@ def get_embedding(text: str) -> Optional[List[float]]:
         import urllib.error
         
         hf_token = os.getenv("HF_TOKEN")
-        if hf_token:
-            try:
-                # Use Hugging Face Serverless Inference API (requires zero local RAM!)
-                model_id = "sentence-transformers/all-MiniLM-L6-v2"
-                api_url = f"https://api-inference.huggingface.co/pipeline/feature-extraction/{model_id}"
+        try:
+            # Use Hugging Face Serverless Inference API (requires zero local RAM!)
+            model_id = "sentence-transformers/all-MiniLM-L6-v2"
+            api_url = f"https://api-inference.huggingface.co/pipeline/feature-extraction/{model_id}"
+            
+            req_headers = {
+                "Content-Type": "application/json"
+            }
+            if hf_token:
+                req_headers["Authorization"] = f"Bearer {hf_token}"
                 
-                req_headers = {
-                    "Authorization": f"Bearer {hf_token}",
-                    "Content-Type": "application/json"
-                }
-                payload = {
-                    "inputs": [text],
-                    "options": {"wait_for_model": True}
-                }
-                
-                req = urllib.request.Request(
-                    api_url,
-                    data=json.dumps(payload).encode("utf-8"),
-                    headers=req_headers,
-                    method="POST"
-                )
-                
-                with urllib.request.urlopen(req, timeout=10) as response:
-                    res_data = json.loads(response.read().decode("utf-8"))
-                    raw_emb = res_data[0]
-                    # Pad to 1536 dimensions to fit the Supabase schema
-                    return raw_emb + [0.0] * (1536 - len(raw_emb))
-            except urllib.error.HTTPError as e:
-                print(f"[WARNING] HF Inference API failed (HTTP {e.code}): {e.reason}. Falling back to local model.")
-            except Exception as e:
-                print(f"[WARNING] HF Inference API exception: {e}. Falling back to local model.")
+            payload = {
+                "inputs": [text],
+                "options": {"wait_for_model": True}
+            }
+            
+            req = urllib.request.Request(
+                api_url,
+                data=json.dumps(payload).encode("utf-8"),
+                headers=req_headers,
+                method="POST"
+            )
+            
+            with urllib.request.urlopen(req, timeout=10) as response:
+                res_data = json.loads(response.read().decode("utf-8"))
+                raw_emb = res_data[0]
+                # Pad to 1536 dimensions to fit the Supabase schema
+                return raw_emb + [0.0] * (1536 - len(raw_emb))
+        except urllib.error.HTTPError as e:
+            print(f"[WARNING] HF Inference API failed (HTTP {e.code}): {e.reason}. Falling back.")
+        except Exception as e:
+            print(f"[WARNING] HF Inference API exception: {e}. Falling back.")
 
         # Local fallback if HF_TOKEN is not set or API request failed
         # Skip local model loading if running on Render free tier to prevent OOM crash
