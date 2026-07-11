@@ -55,16 +55,15 @@ def get_embedding(text: str) -> Optional[List[float]]:
                 # Pad to 1536 dimensions to fit the Supabase schema
                 return raw_emb + [0.0] * (1536 - len(raw_emb))
         except urllib.error.HTTPError as e:
-            print(f"[WARNING] HF Inference API failed (HTTP {e.code}): {e.reason}. Falling back.")
+            error_body = e.read().decode('utf-8')
+            raise RuntimeError(f"Hugging Face API failed (HTTP {e.code}: {e.reason}) - {error_body}")
         except Exception as e:
-            print(f"[WARNING] HF Inference API exception: {e}. Falling back.")
+            raise RuntimeError(f"Hugging Face connection failed: {str(e)}")
 
-        # Local fallback if HF_TOKEN is not set or API request failed
         # Skip local model loading if running on Render free tier to prevent OOM crash
         is_render = os.getenv("RENDER") == "true"
         if is_render:
-            print("[ERROR] HF_TOKEN is missing or failed on Render. Skipping local sentence-transformers load to prevent OOM crash.")
-            return None
+            raise RuntimeError("HF_TOKEN is missing or API failed. Skipping local model load on Render to prevent OOM crash.")
 
         try:
             if _local_transformer is None:
@@ -76,8 +75,7 @@ def get_embedding(text: str) -> Optional[List[float]]:
             # Pad to 1536 dimensions to fit the Supabase schema
             return raw_emb + [0.0] * (1536 - len(raw_emb))
         except Exception as e:
-            print(f"[ERROR] Local embedding error: {e}")
-            return None
+            raise RuntimeError(f"Local embedding model failed: {str(e)}")
     else:
         try:
             response = client.embeddings.create(
@@ -86,5 +84,4 @@ def get_embedding(text: str) -> Optional[List[float]]:
             )
             return response.data[0].embedding
         except Exception as e:
-            print(f"[ERROR] Embedding error: {e}")
-            return None
+            raise RuntimeError(f"OpenAI embedding failed: {str(e)}")

@@ -45,9 +45,10 @@ def ask_question(body: AskRequest, current_user: dict = Depends(get_current_user
         allowed_doc_ids = user_doc_ids
 
     # 2. Embed the question
-    query_embedding = get_embedding(body.question)
-    if query_embedding is None:
-        raise HTTPException(status_code=500, detail="Failed to generate question embedding")
+    try:
+        query_embedding = get_embedding(body.question)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Embedding error: {str(e)}")
 
     # 3. Vector similarity search via Supabase RPC (with fallback support)
     results_data = []
