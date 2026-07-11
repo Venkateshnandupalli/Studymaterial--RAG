@@ -21,7 +21,9 @@ def get_embedding(text: str) -> Optional[List[float]]:
 
     if is_groq:
         import os
-        import requests
+        import json
+        import urllib.request
+        import urllib.error
         
         hf_token = os.getenv("HF_TOKEN")
         if hf_token:
@@ -29,18 +31,30 @@ def get_embedding(text: str) -> Optional[List[float]]:
                 # Use Hugging Face Serverless Inference API (requires zero local RAM!)
                 model_id = "sentence-transformers/all-MiniLM-L6-v2"
                 api_url = f"https://api-inference.huggingface.co/pipeline/feature-extraction/{model_id}"
-                headers = {"Authorization": f"Bearer {hf_token}"}
+                
+                req_headers = {
+                    "Authorization": f"Bearer {hf_token}",
+                    "Content-Type": "application/json"
+                }
                 payload = {
                     "inputs": [text],
                     "options": {"wait_for_model": True}
                 }
-                res = requests.post(api_url, headers=headers, json=payload)
-                if res.status_code == 200:
-                    raw_emb = res.json()[0]
+                
+                req = urllib.request.Request(
+                    api_url,
+                    data=json.dumps(payload).encode("utf-8"),
+                    headers=req_headers,
+                    method="POST"
+                )
+                
+                with urllib.request.urlopen(req, timeout=10) as response:
+                    res_data = json.loads(response.read().decode("utf-8"))
+                    raw_emb = res_data[0]
                     # Pad to 1536 dimensions to fit the Supabase schema
                     return raw_emb + [0.0] * (1536 - len(raw_emb))
-                else:
-                    print(f"[WARNING] HF Inference API failed (status {res.status_code}): {res.text}. Falling back to local model.")
+            except urllib.error.HTTPError as e:
+                print(f"[WARNING] HF Inference API failed (HTTP {e.code}): {e.reason}. Falling back to local model.")
             except Exception as e:
                 print(f"[WARNING] HF Inference API exception: {e}. Falling back to local model.")
 
