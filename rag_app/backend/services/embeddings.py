@@ -25,6 +25,41 @@ def get_embedding(text: str) -> Optional[List[float]]:
         import urllib.request
         import urllib.error
         
+        gemini_api_key = os.getenv("GEMINI_API_KEY")
+        if gemini_api_key:
+            try:
+                # Use Google Gemini text-embedding-004 API (requires zero local RAM!)
+                api_url = f"https://generativelanguage.googleapis.com/v1beta/models/text-embedding-004:embedContent?key={gemini_api_key}"
+                
+                req_headers = {
+                    "Content-Type": "application/json"
+                }
+                payload = {
+                    "content": {
+                        "parts": [
+                            {"text": text}
+                        ]
+                    }
+                }
+                
+                req = urllib.request.Request(
+                    api_url,
+                    data=json.dumps(payload).encode("utf-8"),
+                    headers=req_headers,
+                    method="POST"
+                )
+                
+                with urllib.request.urlopen(req, timeout=10) as response:
+                    res_data = json.loads(response.read().decode("utf-8"))
+                    raw_emb = res_data["embedding"]["values"]
+                    # Pad from 768 to 1536 dimensions to fit the Supabase schema
+                    return raw_emb + [0.0] * (1536 - len(raw_emb))
+            except urllib.error.HTTPError as e:
+                error_body = e.read().decode('utf-8')
+                raise RuntimeError(f"Gemini Embedding API failed (HTTP {e.code}: {e.reason}) - {error_body}")
+            except Exception as e:
+                raise RuntimeError(f"Gemini Embedding connection failed: {str(e)}")
+
         hf_token = os.getenv("HF_TOKEN")
         try:
             # Use Hugging Face Serverless Inference API (requires zero local RAM!)
