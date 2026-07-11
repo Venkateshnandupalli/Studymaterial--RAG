@@ -15,6 +15,11 @@ app = FastAPI(
 # ── CORS (allow the Vite dev server + any deployed frontend) ──────────────────
 import os
 FRONTEND_URL = os.getenv("FRONTEND_URL", "http://localhost:5173")
+
+# Clean up trailing slash if present
+if FRONTEND_URL and FRONTEND_URL.endswith("/"):
+    FRONTEND_URL = FRONTEND_URL[:-1]
+
 origins = [
     "http://localhost:5173",
     "http://127.0.0.1:5173",
