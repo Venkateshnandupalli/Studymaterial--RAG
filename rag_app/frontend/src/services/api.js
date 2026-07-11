@@ -38,3 +38,5 @@ export const askQuestion = (question, documentIds = null) =>
 // ── Study Aids ────────────────────────────────────────────────────────────────
 export const generateFlashcards = (docId) => api.post(`/documents/${docId}/flashcards`);
 export const generateQuiz = (docId) => api.post(`/documents/${docId}/quiz`);
+export const deleteDocument = (docId) => api.delete(`/documents/${docId}`);
+

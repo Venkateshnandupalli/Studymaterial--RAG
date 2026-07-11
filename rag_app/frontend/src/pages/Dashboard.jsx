@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-import { uploadFile, listDocuments, askQuestion, generateFlashcards, generateQuiz } from "../services/api";
+import { uploadFile, listDocuments, askQuestion, generateFlashcards, generateQuiz, deleteDocument } from "../services/api";
 
 function getFileIcon(name = "") {
   const ext = name.split(".").pop()?.toLowerCase();
@@ -200,6 +200,21 @@ export default function Dashboard() {
     }
   };
 
+  const handleDeleteDocument = async (docId, fileName) => {
+    if (!window.confirm(`Are you sure you want to delete "${fileName}"? This will permanently remove all text chunks and vector embeddings.`)) {
+      return;
+    }
+    try {
+      await deleteDocument(docId);
+      // Remove from document selection if selected
+      setSelectedDocIds((prev) => prev.filter((id) => id !== docId));
+      // Remove from local documents list
+      setDocuments((prev) => prev.filter((doc) => doc.id !== docId));
+    } catch (err) {
+      alert(err.response?.data?.detail || "Failed to delete document.");
+    }
+  };
+
   const handleKeyDown = (e) => {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
@@ -289,24 +304,33 @@ export default function Dashboard() {
                       <div className="doc-name" title={doc.file_name}>{doc.file_name}</div>
                       <div className="doc-meta-row">
                         <span className="doc-meta">{doc.created_at?.slice(0, 10)}</span>
-                        {doc.status === "READY" && (
-                          <div className="doc-actions">
-                            <button
-                              className="doc-action-btn"
-                              onClick={() => handleOpenFlashcards(doc.id)}
-                              title="Study Flashcards"
-                            >
-                              ⚡ Card
-                            </button>
-                            <button
-                              className="doc-action-btn"
-                              onClick={() => handleOpenQuiz(doc.id)}
-                              title="Take Practice Quiz"
-                            >
-                              📝 Quiz
-                            </button>
-                          </div>
-                        )}
+                        <div className="doc-actions">
+                          {doc.status === "READY" && (
+                            <>
+                              <button
+                                className="doc-action-btn"
+                                onClick={() => handleOpenFlashcards(doc.id)}
+                                title="Study Flashcards"
+                              >
+                                ⚡ Card
+                              </button>
+                              <button
+                                className="doc-action-btn"
+                                onClick={() => handleOpenQuiz(doc.id)}
+                                title="Take Practice Quiz"
+                              >
+                                📝 Quiz
+                              </button>
+                            </>
+                          )}
+                          <button
+                            className="doc-action-btn doc-action-btn-danger"
+                            onClick={() => handleDeleteDocument(doc.id, doc.file_name)}
+                            title="Delete Document"
+                          >
+                            🗑️ Delete
+                          </button>
+                        </div>
                       </div>
                     </div>
                     <StatusBadge status={doc.status} />

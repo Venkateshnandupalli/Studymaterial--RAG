@@ -681,6 +681,17 @@ body {
   color: #fff;
   box-shadow: 0 0 8px var(--accent-glow);
 }
+.doc-action-btn-danger {
+  color: var(--red);
+  background: rgba(239, 68, 68, 0.05);
+  border-color: rgba(239, 68, 68, 0.2);
+}
+.doc-action-btn-danger:hover {
+  background: var(--red) !important;
+  border-color: var(--red) !important;
+  color: #fff !important;
+  box-shadow: 0 0 8px rgba(239, 68, 68, 0.4) !important;
+}
 
 /* ── Document Selection Pills ───────────────────────────────────── */
 .document-selector-container {

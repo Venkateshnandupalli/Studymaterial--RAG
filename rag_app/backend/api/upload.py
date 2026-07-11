@@ -107,3 +107,22 @@ def list_documents(current_user: dict = Depends(get_current_user)):
         .order("created_at", desc=True) \
         .execute()
     return {"documents": result.data or []}
+
+
+@router.delete("/documents/{doc_id}")
+def delete_document(doc_id: str, current_user: dict = Depends(get_current_user)):
+    """Delete a document uploaded by the current user."""
+    # Verify ownership before deleting
+    doc_res = supabase.table("documents") \
+        .select("id") \
+        .eq("id", doc_id) \
+        .eq("user_email", current_user["sub"]) \
+        .execute()
+    
+    if not doc_res.data:
+        raise HTTPException(status_code=404, detail="Document not found or access denied")
+        
+    # Delete from documents table (chunks will be deleted via ON DELETE CASCADE in the database)
+    supabase.table("documents").delete().eq("id", doc_id).execute()
+    return {"message": "Document deleted successfully"}
+
