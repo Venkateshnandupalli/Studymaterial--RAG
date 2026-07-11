@@ -34,49 +34,69 @@ export default function Login() {
 
   return (
     <div className="auth-page">
-      {/* ── Left Hero Panel ────────────────────────────────────────── */}
+
+      {/* ── LEFT: Animated Hero ─────────────────────────────────── */}
       <div className="auth-hero">
+        <div className="auth-hero-bg" />
         <div className="auth-hero-grid" />
+        <div className="auth-hero-glow-1" />
+        <div className="auth-hero-glow-2" />
+
         <div className="auth-hero-content">
-          <div className="hero-logo">
-            <div className="hero-logo-icon">🎓</div>
-            <div className="hero-logo-text">StudyAI</div>
+          <div className="hero-badge">
+            <div className="hero-badge-dot" />
+            AI-Powered Study Assistant
           </div>
 
-          <h2 className="hero-tagline">
-            Study Smarter,<br />
-            <span className="hero-tagline-highlight">Not Harder.</span>
-          </h2>
+          <h1 className="hero-heading">
+            Study Smarter.<br />
+            <em>Score Higher.</em>
+          </h1>
 
           <p className="hero-sub">
-            Upload your study materials and let AI help you master them —
-            through smart Q&amp;A, flashcards, and practice quizzes.
+            Upload your study materials and instantly get answers, flashcards,
+            and practice quizzes — powered by RAG AI.
           </p>
 
           <div className="hero-features">
             <div className="hero-feature">
               <div className="hero-feature-icon">📄</div>
-              Upload PDFs, DOCX &amp; TXT documents
+              <div className="hero-feature-text">
+                <strong>Smart Document Upload</strong>
+                <span>PDF, DOCX & TXT — processed in seconds</span>
+              </div>
             </div>
             <div className="hero-feature">
               <div className="hero-feature-icon">🤖</div>
-              Ask questions in plain English, get instant answers
+              <div className="hero-feature-text">
+                <strong>Natural Language Q&A</strong>
+                <span>Ask anything, get precise cited answers</span>
+              </div>
             </div>
             <div className="hero-feature">
               <div className="hero-feature-icon">⚡</div>
-              Auto-generate flashcards &amp; practice quizzes
+              <div className="hero-feature-text">
+                <strong>Auto Flashcards & Quizzes</strong>
+                <span>Reinforce learning with AI-generated tests</span>
+              </div>
             </div>
           </div>
         </div>
       </div>
 
-      {/* ── Right Form Panel ───────────────────────────────────────── */}
+      {/* ── RIGHT: Login Form ───────────────────────────────────── */}
       <div className="auth-form-side">
         <div className="auth-card">
-          <div className="brand">
-            <div className="brand-icon">🎓</div>
+          {/* Logo */}
+          <div className="auth-form-logo">
+            <div className="auth-form-logo-mark">🎓</div>
+            <div className="auth-form-logo-name">StudyAI</div>
+          </div>
+
+          {/* Heading */}
+          <div className="auth-form-header">
             <h1>Welcome back</h1>
-            <p>Sign in to continue studying</p>
+            <p>Sign in to your account to continue</p>
           </div>
 
           {error && <div className="alert alert-error">⚠️ {error}</div>}
@@ -89,7 +109,7 @@ export default function Login() {
                 className="form-input"
                 type="email"
                 name="email"
-                placeholder="john@example.com"
+                placeholder="you@university.edu"
                 value={form.email}
                 onChange={handleChange}
                 autoComplete="email"
@@ -104,15 +124,23 @@ export default function Login() {
                 className="form-input"
                 type="password"
                 name="password"
-                placeholder="Your password"
+                placeholder="••••••••"
                 value={form.password}
                 onChange={handleChange}
                 autoComplete="current-password"
               />
             </div>
 
-            <button className="btn btn-primary" type="submit" disabled={loading} id="login-btn">
-              {loading ? <><span className="spinner" /> Signing in…</> : "Sign In →"}
+            <button
+              className="btn btn-primary"
+              type="submit"
+              disabled={loading}
+              id="login-btn"
+              style={{ marginTop: 8 }}
+            >
+              {loading
+                ? <><span className="spinner" /> Signing in…</>
+                : "Sign In →"}
             </button>
           </form>
 

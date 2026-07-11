@@ -38,49 +38,69 @@ export default function Signup() {
 
   return (
     <div className="auth-page">
-      {/* ── Left Hero Panel ────────────────────────────────────────── */}
+
+      {/* ── LEFT: Animated Hero ─────────────────────────────────── */}
       <div className="auth-hero">
+        <div className="auth-hero-bg" />
         <div className="auth-hero-grid" />
+        <div className="auth-hero-glow-1" />
+        <div className="auth-hero-glow-2" />
+
         <div className="auth-hero-content">
-          <div className="hero-logo">
-            <div className="hero-logo-icon">🎓</div>
-            <div className="hero-logo-text">StudyAI</div>
+          <div className="hero-badge">
+            <div className="hero-badge-dot" />
+            Join 1000+ students already studying smarter
           </div>
 
-          <h2 className="hero-tagline">
-            Your AI-Powered<br />
-            <span className="hero-tagline-highlight">Study Companion.</span>
-          </h2>
+          <h1 className="hero-heading">
+            Your AI Study<br />
+            <em>Companion Awaits.</em>
+          </h1>
 
           <p className="hero-sub">
-            Join thousands of students who use StudyAI to ace their exams.
-            Upload your notes and let AI do the heavy lifting.
+            Create your free account and start turning your notes into an
+            interactive, intelligent study experience.
           </p>
 
           <div className="hero-features">
             <div className="hero-feature">
               <div className="hero-feature-icon">🔐</div>
-              Secure, private — your documents belong to you
+              <div className="hero-feature-text">
+                <strong>Private & Secure</strong>
+                <span>Your documents are encrypted and belong to you</span>
+              </div>
             </div>
             <div className="hero-feature">
               <div className="hero-feature-icon">📚</div>
-              RAG-powered answers from your exact study material
+              <div className="hero-feature-text">
+                <strong>RAG-Powered Answers</strong>
+                <span>Answers grounded in your exact study material</span>
+              </div>
             </div>
             <div className="hero-feature">
               <div className="hero-feature-icon">🏆</div>
-              Flashcards &amp; quizzes to lock in what you learn
+              <div className="hero-feature-text">
+                <strong>Exam-Ready in Minutes</strong>
+                <span>Flashcards & quizzes to lock in what you learn</span>
+              </div>
             </div>
           </div>
         </div>
       </div>
 
-      {/* ── Right Form Panel ───────────────────────────────────────── */}
+      {/* ── RIGHT: Sign-Up Form ─────────────────────────────────── */}
       <div className="auth-form-side">
         <div className="auth-card">
-          <div className="brand">
-            <div className="brand-icon">🎓</div>
+          {/* Logo */}
+          <div className="auth-form-logo">
+            <div className="auth-form-logo-mark">🎓</div>
+            <div className="auth-form-logo-name">StudyAI</div>
+          </div>
+
+          {/* Heading */}
+          <div className="auth-form-header">
             <h1>Create your account</h1>
-            <p>Start studying smarter today</p>
+            <p>Free forever — no credit card required</p>
           </div>
 
           {error   && <div className="alert alert-error">⚠️ {error}</div>}
@@ -98,6 +118,7 @@ export default function Signup() {
                 value={form.name}
                 onChange={handleChange}
                 autoComplete="name"
+                autoFocus
               />
             </div>
 
@@ -108,7 +129,7 @@ export default function Signup() {
                 className="form-input"
                 type="email"
                 name="email"
-                placeholder="john@example.com"
+                placeholder="you@university.edu"
                 value={form.email}
                 onChange={handleChange}
                 autoComplete="email"
@@ -129,8 +150,16 @@ export default function Signup() {
               />
             </div>
 
-            <button className="btn btn-primary" type="submit" disabled={loading} id="signup-btn">
-              {loading ? <><span className="spinner" /> Creating account…</> : "Create Account →"}
+            <button
+              className="btn btn-primary"
+              type="submit"
+              disabled={loading}
+              id="signup-btn"
+              style={{ marginTop: 8 }}
+            >
+              {loading
+                ? <><span className="spinner" /> Creating account…</>
+                : "Create Free Account →"}
             </button>
           </form>
 
