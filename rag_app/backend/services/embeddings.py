@@ -28,8 +28,8 @@ def get_embedding(text: str) -> Optional[List[float]]:
         gemini_api_key = os.getenv("GEMINI_API_KEY")
         if gemini_api_key:
             try:
-                # Use Google Gemini text-embedding-004 API (requires zero local RAM!)
-                api_url = f"https://generativelanguage.googleapis.com/v1beta/models/text-embedding-004:embedContent?key={gemini_api_key}"
+                # Use Google Gemini gemini-embedding-001 API (requires zero local RAM!)
+                api_url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-embedding-001:embedContent?key={gemini_api_key}"
                 
                 req_headers = {
                     "Content-Type": "application/json"
