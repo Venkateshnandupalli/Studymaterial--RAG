@@ -18,3 +18,9 @@ if not SUPABASE_URL or not SUPABASE_ANON_KEY:
 
 if not OPENAI_API_KEY:
     raise RuntimeError("❌  OPENAI_API_KEY must be set in .env")
+
+# If using a Groq key, we must have GEMINI_API_KEY set for embeddings fallback
+if isinstance(OPENAI_API_KEY, str) and OPENAI_API_KEY.startswith("gsk_"):
+    if not os.getenv("GEMINI_API_KEY", "").strip():
+        raise RuntimeError("❌  GEMINI_API_KEY must be set in .env when using a Groq key for embeddings.")
+

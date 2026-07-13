@@ -562,7 +562,7 @@ export default function Dashboard() {
                   <div className="quiz-progress-text">Question {currentQuestionIdx + 1} of {quizQuestions.length}</div>
                   <div className="quiz-question-box">{quizQuestions[currentQuestionIdx]?.question}</div>
                   <div className="quiz-options-list">
-                    {quizQuestions[currentQuestionIdx]?.options.map((opt, idx) => {
+                    {(quizQuestions[currentQuestionIdx]?.options || []).map((opt, idx) => {
                       const isSelected = selectedAnswer === opt;
                       const isCorrect  = opt === quizQuestions[currentQuestionIdx]?.correct_answer;
                       let btnClass = "";

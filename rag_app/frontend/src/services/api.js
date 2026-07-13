@@ -13,6 +13,20 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
+// Automatically logout user if token expires (401 Unauthorized)
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response && error.response.status === 401) {
+      localStorage.removeItem("token");
+      localStorage.removeItem("userName");
+      window.location.href = "/login";
+    }
+    return Promise.reject(error);
+  }
+);
+
+
 // ── Auth ──────────────────────────────────────────────────────────────────────
 export const register = (data) => api.post("/auth/register", data);
 export const login = (data) => api.post("/auth/login", data);

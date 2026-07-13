@@ -40,6 +40,7 @@ def _process_document(doc_id: str, file_path: str, file_name: str):
             return
 
         chunks = chunk_text(text)
+        chunks_to_insert = []
         for idx, chunk_content in enumerate(chunks):
             try:
                 embedding = get_embedding(chunk_content)
@@ -48,13 +49,16 @@ def _process_document(doc_id: str, file_path: str, file_name: str):
                 supabase.table("documents").update({"status": "FAILED"}).eq("id", doc_id).execute()
                 return
 
-            supabase.table("document_chunks").insert({
+            chunks_to_insert.append({
                 "id": str(uuid.uuid4()),
                 "document_id": doc_id,
                 "chunk_number": idx,
                 "content": chunk_content,
                 "embedding": embedding,
-            }).execute()
+            })
+
+        if chunks_to_insert:
+            supabase.table("document_chunks").insert(chunks_to_insert).execute()
 
         supabase.table("documents").update({"status": "READY"}).eq("id", doc_id).execute()
     except Exception as e:
