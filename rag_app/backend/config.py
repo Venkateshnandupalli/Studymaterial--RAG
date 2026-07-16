@@ -15,8 +15,6 @@ ACCESS_TOKEN_EXPIRE_MINUTES = 60
 
 if not SUPABASE_URL or not SUPABASE_ANON_KEY:
     raise RuntimeError("❌  SUPABASE_URL and SUPABASE_ANON_KEY must be set in .env")
-if not SUPABASE_JWT_SECRET:
-    raise RuntimeError("❌  SUPABASE_JWT_SECRET must be set in .env")
 
 if not OPENAI_API_KEY:
     raise RuntimeError("❌  OPENAI_API_KEY must be set in .env")
