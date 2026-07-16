@@ -202,7 +202,6 @@ export default function Dashboard() {
           <div className="navbar-brand">
             <div className="brand-logo"><Icons.Library /></div>
             StudyAI
-            <span className="navbar-badge">PRO</span>
           </div>
           <div className="navbar-right">
             <div className="user-badge">
