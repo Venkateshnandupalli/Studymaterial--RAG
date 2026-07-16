@@ -1739,3 +1739,38 @@ body {
   40% { transform: scale(1); opacity: 1; box-shadow: 0 0 8px var(--p-glow); }
 }
 
+
+/* =========================================================
+   DOC ACTIONS INLINE FIX
+========================================================= */
+.doc-actions-inline {
+  display: flex;
+  gap: 8px;
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid rgba(255,255,255,0.05);
+}
+.pro-action-pill {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 8px 0;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.05);
+  border-radius: 8px;
+  color: var(--t2);
+  font-size: 11px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all var(--ease);
+}
+.pro-action-pill:hover {
+  background: rgba(255,255,255,0.1);
+  color: var(--t1);
+  border-color: rgba(255,255,255,0.2);
+}
+.danger-pill { color: var(--danger); flex: 0 0 36px; padding: 0; }
+.danger-pill:hover { background: var(--danger-soft); color: var(--danger); border-color: var(--danger); }
+

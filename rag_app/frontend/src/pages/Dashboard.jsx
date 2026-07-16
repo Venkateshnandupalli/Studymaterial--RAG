@@ -64,22 +64,9 @@ export default function Dashboard() {
   const [loadingQuiz, setLoadingQuiz] = useState(false);
   const [quizFinished, setQuizFinished] = useState(false);
 
-  // 3D Tilt State
-  const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
   const containerRef = useRef(null);
   const chatEndRef = useRef(null);
   const pollRef = useRef(null);
-
-  const handleMouseMove = (e) => {
-    if (!containerRef.current) return;
-    const rect = containerRef.current.getBoundingClientRect();
-    const x = (e.clientX - rect.left) / rect.width - 0.5;
-    const y = (e.clientY - rect.top) / rect.height - 0.5;
-    setMousePos({ x, y });
-  };
-  const handleMouseLeave = () => {
-    setMousePos({ x: 0, y: 0 });
-  };
 
   const fetchDocs = useCallback(async () => {
     try {
@@ -203,19 +190,14 @@ export default function Dashboard() {
   };
 
   return (
-    <div className="dashboard-3d-wrapper" onMouseMove={handleMouseMove} onMouseLeave={handleMouseLeave} ref={containerRef}>
+    <div className="dashboard-3d-wrapper" ref={containerRef}>
       <div className="bg-orb bg-orb-1" />
       <div className="bg-orb bg-orb-2" />
       <div className="bg-orb bg-orb-3" />
       <div className="bg-grid" />
 
-      {/* 3D Tilt Container */}
-      <div 
-        className="dashboard-3d-container"
-        style={{
-          transform: `perspective(1400px) rotateY(${mousePos.x * 6}deg) rotateX(${-mousePos.y * 6}deg) translateZ(20px)`
-        }}
-      >
+      {/* 3D Container (Static) */}
+      <div className="dashboard-3d-container">
         <nav className="navbar pro-navbar">
           <div className="navbar-brand">
             <div className="brand-logo"><Icons.Library /></div>
@@ -283,10 +265,10 @@ export default function Dashboard() {
                         </div>
                       </div>
                       {doc.status === "READY" && (
-                        <div className="doc-actions-overlay">
-                          <button className="doc-action-btn pro-btn" onClick={() => handleOpenFlashcards(doc.id)} title="Flashcards"><Icons.Lightning /> Cards</button>
-                          <button className="doc-action-btn pro-btn" onClick={() => handleOpenQuiz(doc.id)} title="Quiz"><Icons.CheckSquare /> Quiz</button>
-                          <button className="doc-action-btn danger-btn" onClick={() => handleDeleteDocument(doc.id, doc.file_name)} title="Delete"><Icons.Trash /></button>
+                        <div className="doc-actions-inline">
+                          <button className="pro-action-pill" onClick={() => handleOpenFlashcards(doc.id)} title="Flashcards"><Icons.Lightning /> Flashcards</button>
+                          <button className="pro-action-pill" onClick={() => handleOpenQuiz(doc.id)} title="Quiz"><Icons.CheckSquare /> Quiz</button>
+                          <button className="pro-action-pill danger-pill" onClick={() => handleDeleteDocument(doc.id, doc.file_name)} title="Delete"><Icons.Trash /></button>
                         </div>
                       )}
                     </div>
