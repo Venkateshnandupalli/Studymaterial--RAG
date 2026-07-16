@@ -1676,3 +1676,66 @@ body {
   letter-spacing: -0.01em;
 }
 
+
+/* =========================================================
+   PRO MOBILE RESPONSIVENESS & FINAL POLISH
+========================================================= */
+
+/* Mobile overrides for the 3D Workspace */
+@media (max-width: 960px) {
+  .dashboard-3d-wrapper {
+    padding: 16px 12px;
+  }
+  .navbar.pro-navbar {
+    padding: 0 20px;
+    height: 60px;
+    margin-bottom: 16px;
+    border-radius: 20px;
+  }
+  .dashboard-content.pro-layout {
+    display: flex;
+    flex-direction: column;
+    height: auto;
+    min-height: 85vh;
+    border-radius: 20px;
+  }
+  .pro-sidebar {
+    border-right: none !important;
+    border-bottom: 1px solid rgba(255,255,255,0.1) !important;
+  }
+  .upload-panel-3d, .library-panel-3d {
+    margin: 12px;
+  }
+  .pro-chat-panel {
+    min-height: 60vh;
+  }
+  
+  /* Disable 3D transforms on mobile for better touch experience */
+  .dashboard-3d-container, 
+  .upload-panel-3d, 
+  .library-panel-3d, 
+  .chat-header-3d, 
+  .chat-messages-3d, 
+  .chat-input-3d {
+    transform: none !important;
+  }
+}
+
+/* Typing Indicator Glowing Wave */
+.typing-bubble .typing-dots span {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  background: var(--p-l);
+  border-radius: 50%;
+  margin: 0 2px;
+  animation: typingWave 1.4s infinite ease-in-out both;
+}
+.typing-bubble .typing-dots span:nth-child(1) { animation-delay: -0.32s; }
+.typing-bubble .typing-dots span:nth-child(2) { animation-delay: -0.16s; }
+
+@keyframes typingWave {
+  0%, 80%, 100% { transform: scale(0); opacity: 0.3; }
+  40% { transform: scale(1); opacity: 1; box-shadow: 0 0 8px var(--p-glow); }
+}
+
