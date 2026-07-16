@@ -25,8 +25,12 @@ function App() {
 
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
+    } = supabase.auth.onAuthStateChange((event, session) => {
       setSession(session);
+      // Wait for SIGNED_IN event if the URL has an access_token
+      if (event === "INITIAL_SESSION" && window.location.hash.includes("access_token")) {
+        return;
+      }
       setLoading(false);
     });
 
