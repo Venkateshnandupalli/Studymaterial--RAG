@@ -5,40 +5,36 @@ import Signup from "./pages/Signup";
 import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
 import LandingPage from "./pages/LandingPage";
+import AuthCallback from "./pages/AuthCallback";
 
 function PrivateRoute({ children, session }) {
   return session ? children : <Navigate to="/login" replace />;
 }
 
 function App() {
-  const [session, setSession] = useState(null);
-  const [loading, setLoading] = useState(true);
+  // null = not checked yet, false = no session, object = has session
+  const [session, setSession] = useState(undefined);
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      // If there's an access_token in the URL, wait for onAuthStateChange to process it
-      if (!window.location.hash.includes("access_token")) {
-        setLoading(false);
-      }
-    });
-
+    // onAuthStateChange fires immediately with INITIAL_SESSION (the current session or null).
+    // This is the single source of truth — no need for a separate getSession() call.
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange((event, session) => {
-      setSession(session);
-      // Wait for SIGNED_IN event if the URL has an access_token
-      if (event === "INITIAL_SESSION" && window.location.hash.includes("access_token")) {
-        return;
-      }
-      setLoading(false);
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      setSession(session ?? false);
     });
 
     return () => subscription.unsubscribe();
   }, []);
 
-  if (loading) {
-    return <div style={{ height: "100vh", display: "flex", alignItems: "center", justifyContent: "center" }}>Loading...</div>;
+  // Still initialising — don't render the router yet or PrivateRoute
+  // will redirect to /login before the session is known.
+  if (session === undefined) {
+    return (
+      <div style={{ height: "100vh", display: "flex", alignItems: "center", justifyContent: "center", background: "#0f0f1a", color: "#fff" }}>
+        Loading…
+      </div>
+    );
   }
 
   return (
@@ -47,6 +43,8 @@ function App() {
         <Route path="/" element={<LandingPage />} />
         <Route path="/signup" element={<Signup />} />
         <Route path="/login" element={<Login />} />
+        {/* OAuth PKCE callback — Supabase exchanges the ?code= here */}
+        <Route path="/auth/callback" element={<AuthCallback />} />
         <Route
           path="/dashboard"
           element={
