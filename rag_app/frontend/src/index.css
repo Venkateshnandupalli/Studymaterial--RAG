@@ -1774,3 +1774,32 @@ body {
 .danger-pill { color: var(--danger); flex: 0 0 36px; padding: 0; }
 .danger-pill:hover { background: var(--danger-soft); color: var(--danger); border-color: var(--danger); }
 
+
+/* =========================================================
+   URGENT LAYOUT FIXES
+========================================================= */
+
+/* Fix Document Item Flex Direction */
+.pro-doc-item {
+  display: flex;
+  flex-direction: column !important;
+  align-items: stretch !important;
+}
+
+/* Fix action button overflow */
+.doc-actions-inline {
+  display: flex;
+  flex-wrap: wrap; /* allow wrapping if narrow */
+  gap: 8px;
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid rgba(255,255,255,0.05);
+}
+
+/* Remove slide-up animation from chat */
+.pro-msg {
+  animation: none !important;
+  opacity: 1 !important;
+  transform: none !important;
+}
+
