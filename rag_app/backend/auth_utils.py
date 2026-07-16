@@ -1,19 +1,39 @@
-from typing import Optional
-
 from fastapi import Depends, HTTPException, Header
-from supabase_client import supabase
+from jose import jwt, JWTError
+from config import SUPABASE_JWT_SECRET
+
 
 def get_current_user(authorization: str = Header(None)) -> dict:
-    """Extract and validate the Bearer token using Supabase."""
+    """Validate the Supabase Bearer JWT locally using the JWT secret.
+    
+    This avoids a round-trip network call to Supabase and works reliably
+    for all auth methods — email/password AND Google/GitHub OAuth.
+    """
     if not authorization:
         raise HTTPException(status_code=401, detail="Authorization header missing")
-    token = authorization.replace("Bearer ", "").strip()
-    
-    try:
-        res = supabase.auth.get_user(token)
-        if not res.user:
-            raise HTTPException(status_code=401, detail="Invalid token")
-        return {"id": res.user.id, "email": res.user.email, "sub": res.user.id}
-    except Exception as e:
-        raise HTTPException(status_code=401, detail=f"Invalid or expired token: {str(e)}")
 
+    token = authorization.replace("Bearer ", "").strip()
+
+    if not SUPABASE_JWT_SECRET:
+        raise HTTPException(
+            status_code=500,
+            detail="Server misconfiguration: SUPABASE_JWT_SECRET is not set."
+        )
+
+    try:
+        payload = jwt.decode(
+            token,
+            SUPABASE_JWT_SECRET,
+            algorithms=["HS256"],
+            audience="authenticated",
+        )
+        user_id: str = payload.get("sub", "")
+        email: str = payload.get("email", "")
+
+        if not user_id:
+            raise HTTPException(status_code=401, detail="Invalid token: missing user ID")
+
+        return {"id": user_id, "email": email, "sub": user_id}
+
+    except JWTError as e:
+        raise HTTPException(status_code=401, detail=f"Invalid or expired token: {str(e)}")
