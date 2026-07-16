@@ -1013,3 +1013,666 @@ button { cursor: pointer; }
 }
 
 
+
+/* =========================================================
+   PRO UI DASHBOARD COMPONENTS
+========================================================= */
+
+/* Navbar Pro */
+.pro-navbar {
+  border-bottom: 1px solid var(--line);
+  background: rgba(15, 17, 23, 0.7);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+}
+.brand-logo {
+  color: var(--p-l);
+  display: flex;
+  align-items: center;
+  margin-right: 8px;
+}
+.user-avatar-pro {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--p-d);
+  color: #fff;
+}
+.user-name-text {
+  font-weight: 500;
+  color: var(--t1);
+}
+.pro-logout {
+  background: transparent;
+  border: 1px solid var(--line);
+  color: var(--t3);
+  padding: 6px 12px;
+  border-radius: var(--r-s);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all var(--ease);
+}
+.pro-logout:hover {
+  background: var(--danger-soft);
+  color: var(--danger);
+  border-color: var(--danger);
+}
+
+/* Sidebar Pro */
+.pro-layout {
+  display: flex;
+  gap: 24px;
+}
+.pro-sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+.pro-panel {
+  background: rgba(15, 17, 23, 0.6);
+  border: 1px solid var(--line);
+  backdrop-filter: blur(12px);
+  border-radius: var(--r-l);
+  box-shadow: 0 10px 30px rgba(0,0,0,0.2), inset 0 1px 0 rgba(255,255,255,0.05);
+  padding: 24px;
+}
+
+/* Upload Pro */
+.pro-upload {
+  border: 2px dashed var(--line);
+  border-radius: var(--r-m);
+  background: var(--bg-1);
+  padding: 30px 20px;
+  transition: all var(--ease);
+}
+.pro-upload:hover {
+  border-color: var(--p);
+  background: var(--bg-2);
+}
+.upload-icon-pro {
+  color: var(--p-l);
+  margin-bottom: 12px;
+  display: flex;
+  justify-content: center;
+}
+.upload-icon-pro svg {
+  width: 32px;
+  height: 32px;
+}
+.pro-hint {
+  font-size: 14px;
+  color: var(--t2);
+}
+
+/* Doc List Pro */
+.empty-library {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 40px 0;
+  color: var(--t3);
+}
+.empty-library svg {
+  width: 48px;
+  height: 48px;
+  margin-bottom: 16px;
+  opacity: 0.5;
+}
+.pro-doc-item {
+  position: relative;
+  border: 1px solid var(--line);
+  background: var(--bg-1);
+  border-radius: var(--r-m);
+  padding: 16px;
+  margin-bottom: 12px;
+  overflow: hidden;
+  transition: all var(--ease);
+}
+.pro-doc-item:hover {
+  border-color: var(--line-bright);
+  background: var(--bg-2);
+}
+.doc-item-main {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+.doc-icon-pro {
+  color: var(--p);
+  padding-top: 2px;
+}
+.doc-date {
+  font-size: 11px;
+  color: var(--t3);
+}
+.doc-actions-overlay {
+  position: absolute;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  background: linear-gradient(90deg, transparent, var(--bg-2) 20%);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 16px;
+  opacity: 0;
+  transform: translateX(10px);
+  transition: all var(--ease);
+}
+.pro-doc-item:hover .doc-actions-overlay {
+  opacity: 1;
+  transform: translateX(0);
+}
+.pro-btn {
+  background: var(--bg-3);
+  border: 1px solid var(--line);
+  color: var(--t1);
+  padding: 6px 12px;
+  border-radius: var(--r-s);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 500;
+  transition: all var(--ease);
+}
+.pro-btn:hover {
+  background: var(--p-d);
+  color: #fff;
+  border-color: var(--p);
+}
+.danger-btn {
+  background: var(--bg-3);
+  border: 1px solid var(--line);
+  color: var(--danger);
+  padding: 6px 10px;
+  border-radius: var(--r-s);
+  display: flex;
+  align-items: center;
+  transition: all var(--ease);
+}
+.danger-btn:hover {
+  background: var(--danger-soft);
+  border-color: var(--danger);
+}
+
+/* Chat Panel Pro */
+.pro-chat-panel {
+  background: rgba(15, 17, 23, 0.4);
+  border: 1px solid var(--line);
+  backdrop-filter: blur(10px);
+  border-radius: var(--r-l);
+  box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+  overflow: hidden;
+}
+.pro-chat-header {
+  border-bottom: 1px solid var(--line);
+  background: var(--bg-1);
+  padding: 20px 24px;
+}
+.chat-header-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 18px;
+  color: var(--t1);
+}
+.chat-header-title svg {
+  color: var(--p-l);
+}
+.pill-list-mini {
+  display: flex;
+  gap: 8px;
+  margin-top: 12px;
+  flex-wrap: wrap;
+}
+.pill-mini {
+  background: var(--bg-2);
+  border: 1px solid var(--line);
+  color: var(--t2);
+  padding: 4px 12px;
+  border-radius: 99px;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all var(--ease);
+}
+.pill-mini:hover {
+  background: var(--bg-3);
+  color: var(--t1);
+}
+.pill-mini.active {
+  background: var(--p-soft);
+  color: var(--p-l);
+  border-color: var(--p-d);
+}
+.pro-empty {
+  color: var(--t2);
+}
+.chat-empty-icon-pro {
+  color: var(--p-l);
+  margin-bottom: 16px;
+}
+.chat-empty-icon-pro svg {
+  width: 48px;
+  height: 48px;
+}
+.chat-suggestions-pro {
+  display: flex;
+  gap: 12px;
+  margin-top: 24px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+.chat-suggestions-pro button {
+  background: var(--bg-2);
+  border: 1px solid var(--line);
+  color: var(--p-l);
+  padding: 8px 16px;
+  border-radius: 99px;
+  font-size: 13px;
+  transition: all var(--ease);
+}
+.chat-suggestions-pro button:hover {
+  background: var(--p-soft);
+  border-color: var(--p);
+  transform: translateY(-1px);
+}
+.pro-avatar {
+  background: var(--bg-3);
+  border: 1px solid var(--line);
+  color: var(--t2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+}
+.msg-bot .pro-avatar {
+  background: linear-gradient(135deg, var(--p-d), var(--bg-3));
+  color: #fff;
+  border-color: var(--p);
+}
+.msg-user .pro-avatar {
+  background: var(--bg-2);
+}
+.pro-bubble {
+  border-radius: 12px;
+  line-height: 1.6;
+}
+.msg-bot .pro-bubble {
+  background: var(--bg-2);
+  border: 1px solid var(--line);
+}
+.pro-sources {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(99, 102, 241, 0.1);
+  color: var(--p-l);
+  padding: 4px 10px;
+  border-radius: 4px;
+  font-size: 11px;
+  margin-top: 10px;
+}
+
+.pro-input-area {
+  background: var(--bg-1);
+  border-top: 1px solid var(--line);
+  padding: 20px 24px;
+}
+.pro-input-wrap {
+  border: 1px solid var(--line-bright);
+  background: var(--bg-2);
+  border-radius: 16px;
+  box-shadow: inset 0 2px 5px rgba(0,0,0,0.2);
+  display: flex;
+  align-items: flex-end;
+  padding: 12px 16px;
+}
+.pro-input-wrap textarea {
+  padding: 0;
+  background: transparent;
+  margin-right: 12px;
+}
+.pro-send-btn {
+  background: var(--p);
+  color: #fff;
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  transition: all var(--ease);
+}
+.pro-send-btn:not(:disabled):hover {
+  background: var(--p-l);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px var(--p-glow);
+}
+.pro-send-btn:disabled {
+  background: var(--bg-3);
+  color: var(--t3);
+  cursor: not-allowed;
+}
+
+/* Modals Pro */
+.pro-modal {
+  border: 1px solid var(--line-bright);
+  background: var(--bg-1);
+  box-shadow: 0 25px 50px -12px rgba(0,0,0,0.8);
+}
+.loading-state-pro,
+.error-state-pro {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 0;
+  text-align: center;
+}
+.loading-state-pro p {
+  color: var(--t2);
+  margin-top: 16px;
+}
+.error-state-pro {
+  color: var(--danger);
+}
+.quiz-results-pro {
+  text-align: center;
+  padding: 40px 0;
+}
+.quiz-score-circle {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  border: 4px solid var(--p);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28px;
+  font-weight: 700;
+  margin: 0 auto 20px auto;
+  color: var(--p-l);
+  box-shadow: 0 0 20px var(--p-glow);
+}
+
+
+/* =========================================================
+   ULTRA PREMIUM 3D WORKSPACE OVERRIDE
+========================================================= */
+
+/* Center the entire dashboard view */
+.dashboard {
+  background: var(--bg); 
+  padding: 30px 40px;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  overflow: hidden;
+}
+
+/* The floating pill navbar */
+.navbar.pro-navbar {
+  position: static;
+  width: 100%;
+  max-width: 1400px;
+  height: 64px;
+  border-radius: 99px;
+  margin: 0 auto 30px auto;
+  border: 1px solid rgba(255,255,255,0.15);
+  box-shadow: 0 15px 35px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.1);
+  background: rgba(20, 22, 30, 0.6);
+  backdrop-filter: blur(20px);
+  padding: 0 32px;
+}
+
+/* The main massive glassmorphic workspace window */
+.dashboard-content.pro-layout {
+  width: 100%;
+  max-width: 1400px;
+  height: calc(100vh - 160px);
+  min-height: 600px;
+  margin: 0 auto;
+  background: rgba(20, 22, 30, 0.4);
+  backdrop-filter: blur(40px);
+  -webkit-backdrop-filter: blur(40px);
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 24px;
+  box-shadow: 0 40px 100px rgba(0,0,0,0.8), inset 0 1px 0 rgba(255,255,255,0.15);
+  display: grid;
+  grid-template-columns: 340px 1fr;
+  overflow: hidden;
+  position: relative;
+  z-index: 10;
+}
+
+/* Sidebar inside the window */
+.pro-sidebar {
+  background: rgba(0,0,0,0.25);
+  border-right: 1px solid rgba(255,255,255,0.08) !important;
+  box-shadow: none !important;
+  padding: 0;
+  gap: 0;
+}
+
+/* Clean up panels inside the sidebar to remove their individual borders */
+.pro-panel {
+  border: none !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  border-bottom: 1px solid rgba(255,255,255,0.05) !important;
+  border-radius: 0 !important;
+  padding: 28px !important;
+}
+
+/* Refined upload zone */
+.pro-upload {
+  background: rgba(255,255,255,0.02) !important;
+  border-color: rgba(255,255,255,0.1) !important;
+}
+.pro-upload:hover {
+  background: rgba(99, 102, 241, 0.1) !important;
+  border-color: var(--p) !important;
+}
+
+/* Refined chat panel */
+.pro-chat-panel {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  border-radius: 0 !important;
+  display: flex;
+  flex-direction: column;
+}
+
+.pro-chat-header {
+  background: transparent !important;
+  border-bottom: 1px solid rgba(255,255,255,0.05) !important;
+  padding: 24px 32px !important;
+}
+
+.pro-input-area {
+  background: rgba(0,0,0,0.2) !important;
+  border-top: 1px solid rgba(255,255,255,0.05) !important;
+  padding: 24px 32px !important;
+}
+
+.pro-input-wrap {
+  background: rgba(255,255,255,0.03) !important;
+  border: 1px solid rgba(255,255,255,0.1) !important;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.2) !important;
+}
+.pro-input-wrap:focus-within {
+  background: rgba(255,255,255,0.06) !important;
+  border-color: var(--p-l) !important;
+  box-shadow: 0 4px 30px rgba(99,102,241,0.2) !important;
+}
+
+/* Message bubbles refinement */
+.pro-bubble {
+  box-shadow: 0 5px 15px rgba(0,0,0,0.2) !important;
+}
+.msg-bot .pro-bubble {
+  background: rgba(255,255,255,0.03) !important;
+  border: 1px solid rgba(255,255,255,0.08) !important;
+}
+
+
+/* =========================================================
+   INTERACTIVE 3D DASHBOARD OVERRIDE (LIKE AUTH PAGE)
+========================================================= */
+
+.dashboard-3d-wrapper {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+  background: var(--bg);
+  padding: 40px 20px;
+}
+
+.dashboard-3d-container {
+  width: 100%;
+  max-width: 1400px;
+  transform-style: preserve-3d;
+  transition: transform 0.1s ease-out; /* Smooth snapping for mouse tracking */
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Float panels off the base plane */
+.upload-panel-3d {
+  transform: translateZ(30px);
+  box-shadow: 0 10px 30px rgba(0,0,0,0.5) !important;
+  background: rgba(15,17,23,0.5) !important;
+  border-radius: 16px !important;
+  margin: 20px;
+  border: 1px solid rgba(255,255,255,0.1) !important;
+}
+
+.library-panel-3d {
+  transform: translateZ(40px);
+  box-shadow: 0 15px 40px rgba(0,0,0,0.6) !important;
+  background: rgba(15,17,23,0.5) !important;
+  border-radius: 16px !important;
+  margin: 0 20px 20px 20px;
+  border: 1px solid rgba(255,255,255,0.1) !important;
+}
+
+.chat-header-3d {
+  transform: translateZ(50px);
+  background: rgba(15,17,23,0.7) !important;
+  backdrop-filter: blur(10px);
+}
+
+.chat-messages-3d {
+  transform: translateZ(20px);
+}
+
+.chat-input-3d {
+  transform: translateZ(60px);
+  background: rgba(15,17,23,0.8) !important;
+  backdrop-filter: blur(10px);
+}
+
+/* Override the pro-layout to act as a 3D structural frame */
+.dashboard-content.pro-layout {
+  transform-style: preserve-3d;
+  background: rgba(20, 22, 30, 0.2) !important;
+  border: 1px solid rgba(255,255,255,0.05) !important;
+  box-shadow: 0 50px 100px rgba(0,0,0,0.9), inset 0 1px 0 rgba(255,255,255,0.1) !important;
+  height: calc(100vh - 180px);
+}
+
+
+/* =========================================================
+   FINAL PRO TOUCHUPS & MICRO-ANIMATIONS
+========================================================= */
+
+/* Shimmering Hover for Document Items */
+.pro-doc-item::after {
+  content: '';
+  position: absolute;
+  top: 0; left: -100%;
+  width: 50%; height: 100%;
+  background: linear-gradient(to right, transparent, rgba(255,255,255,0.05), transparent);
+  transform: skewX(-20deg);
+}
+.pro-doc-item:hover::after {
+  animation: shimmer 0.8s ease-in-out;
+}
+@keyframes shimmer {
+  100% { left: 200%; }
+}
+
+/* Chat Message Fade-in Animation */
+.pro-msg {
+  animation: slideUpFade 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  opacity: 0;
+  transform: translateY(10px);
+}
+@keyframes slideUpFade {
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Enhanced Ambient Orbs for Dashboard */
+.bg-orb {
+  animation: floatOrb 20s infinite alternate cubic-bezier(0.4, 0, 0.2, 1);
+}
+@keyframes floatOrb {
+  0% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(5vw, 5vh) scale(1.1); }
+  100% { transform: translate(-5vw, -5vh) scale(0.9); }
+}
+
+/* Polished Scrollbars for Pro Layout */
+.pro-layout ::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+.pro-layout ::-webkit-scrollbar-track {
+  background: transparent;
+}
+.pro-layout ::-webkit-scrollbar-thumb {
+  background: rgba(255,255,255,0.1);
+  border-radius: 10px;
+}
+.pro-layout ::-webkit-scrollbar-thumb:hover {
+  background: rgba(255,255,255,0.2);
+}
+
+/* Glowing primary button pulse */
+.pro-send-btn:not(:disabled) {
+  animation: subtlePulse 2s infinite;
+}
+@keyframes subtlePulse {
+  0% { box-shadow: 0 0 0 0 rgba(99, 102, 241, 0.4); }
+  70% { box-shadow: 0 0 0 10px rgba(99, 102, 241, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(99, 102, 241, 0); }
+}
+
+/* Refined Typography Weight */
+body {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+.doc-name {
+  font-weight: 500;
+  letter-spacing: -0.01em;
+}
+
