@@ -85,8 +85,9 @@ export default function Dashboard() {
     chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, asking]);
 
-  const handleLogout = () => {
-    localStorage.removeItem("token");
+  const handleLogout = async () => {
+    const { supabase } = await import("../services/supabase");
+    await supabase.auth.signOut();
     localStorage.removeItem("userName");
     navigate("/login");
   };

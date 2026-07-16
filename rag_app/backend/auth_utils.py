@@ -1,41 +1,22 @@
-from datetime import datetime, timedelta
 from typing import Optional
 
 from fastapi import Depends, HTTPException, Header
 from jose import JWTError, jwt
-import bcrypt
 
-from config import SECRET_KEY, ALGORITHM, ACCESS_TOKEN_EXPIRE_MINUTES
-
-
-# ── Password helpers ──────────────────────────────────────────────────────────
-
-def hash_password(password: str) -> str:
-    """Hash password using bcrypt."""
-    # Reduced work factor (rounds=10 instead of default 12) to speed up login significantly
-    return bcrypt.hashpw(password.encode("utf-8"), bcrypt.gensalt(rounds=10)).decode("utf-8")
-
-
-def verify_password(plain: str, hashed: str) -> bool:
-    """Verify plain password against hashed password."""
-    try:
-        return bcrypt.checkpw(plain.encode("utf-8"), hashed.encode("utf-8"))
-    except Exception:
-        return False
+from config import SUPABASE_JWT_SECRET, ALGORITHM
 
 
 # ── JWT helpers ───────────────────────────────────────────────────────────────
 
-def create_access_token(data: dict, expires_delta: Optional[timedelta] = None) -> str:
-    to_encode = data.copy()
-    expire = datetime.utcnow() + (expires_delta or timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES))
-    to_encode.update({"exp": expire})
-    return jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
-
-
 def decode_token(token: str) -> dict:
     try:
-        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        # Supabase uses HS256 and the JWT secret from the dashboard
+        payload = jwt.decode(
+            token, 
+            SUPABASE_JWT_SECRET, 
+            algorithms=[ALGORITHM], 
+            options={"verify_aud": False}
+        )
         return payload
     except JWTError:
         raise HTTPException(status_code=401, detail="Invalid or expired token")
@@ -49,4 +30,4 @@ def get_current_user(authorization: str = Header(None)) -> dict:
         raise HTTPException(status_code=401, detail="Authorization header missing")
     token = authorization.replace("Bearer ", "").strip()
     payload = decode_token(token)
-    return payload  # contains {"sub": email, "exp": ...}
+    return payload  # contains {"sub": user_id, "exp": ...}

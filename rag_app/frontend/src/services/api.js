@@ -1,12 +1,14 @@
 import axios from "axios";
+import { supabase } from "./supabase";
 
 export const BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:8000";
 
 const api = axios.create({ baseURL: BASE_URL });
 
 // Inject JWT token into every request automatically
-api.interceptors.request.use((config) => {
-  const token = localStorage.getItem("token");
+api.interceptors.request.use(async (config) => {
+  const { data: { session } } = await supabase.auth.getSession();
+  const token = session?.access_token;
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }
@@ -16,9 +18,9 @@ api.interceptors.request.use((config) => {
 // Automatically logout user if token expires (401 Unauthorized)
 api.interceptors.response.use(
   (response) => response,
-  (error) => {
+  async (error) => {
     if (error.response && error.response.status === 401) {
-      localStorage.removeItem("token");
+      await supabase.auth.signOut();
       localStorage.removeItem("userName");
       window.location.href = "/login";
     }
@@ -26,10 +28,6 @@ api.interceptors.response.use(
   }
 );
 
-
-// ── Auth ──────────────────────────────────────────────────────────────────────
-export const register = (data) => api.post("/auth/register", data);
-export const login = (data) => api.post("/auth/login", data);
 
 // ── Documents ─────────────────────────────────────────────────────────────────
 export const uploadFile = (file, onProgress) => {
