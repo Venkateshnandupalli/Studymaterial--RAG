@@ -26,6 +26,8 @@ def ask_question(body: AskRequest, current_user: dict = Depends(get_current_user
     if not body.question.strip():
         raise HTTPException(status_code=400, detail="Question cannot be empty")
 
+    # 1. Fetch user's documents to restrict query access for security
+    #    Match by email (new uploads) OR uuid (legacy uploads)
     user_docs_res = supabase.table("documents") \
         .select("id") \
         .or_(f"user_email.eq.{current_user['email']},user_email.eq.{current_user['sub']}") \
