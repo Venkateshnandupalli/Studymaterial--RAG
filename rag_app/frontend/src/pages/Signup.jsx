@@ -34,15 +34,36 @@ export default function Signup() {
         }
       });
 
-      if (error) throw error;
+      if (error) {
+        // Detect duplicate email (Supabase error when email confirmation is OFF)
+        const msg = error.message?.toLowerCase() || "";
+        if (
+          msg.includes("already registered") ||
+          msg.includes("already exists") ||
+          msg.includes("email address is already") ||
+          error.code === "user_already_exists" ||
+          error.status === 422
+        ) {
+          setError(`An account with "${form.email}" already exists. Please sign in instead.`);
+        } else {
+          setError(error.message || "Registration failed. Please try again.");
+        }
+        return;
+      }
+
+      // When email confirmation is ON, Supabase silently "succeeds" for duplicate
+      // emails but returns a user with an empty identities array. Detect this.
+      if (data?.user && (!data.user.identities || data.user.identities.length === 0)) {
+        setError(`An account with "${form.email}" already exists. Please sign in instead.`);
+        return;
+      }
 
       if (data.session) {
         // Email confirmation is OFF — user is immediately signed in.
-        // Store name and go straight to dashboard.
         localStorage.setItem("userName", data.user?.user_metadata?.name || data.user?.email || form.name);
         navigate("/dashboard");
       } else {
-        // Email confirmation is ON — user must verify email before logging in.
+        // Email confirmation is ON — account created, must verify email.
         setSuccess("Account created! Please check your email inbox and click the confirmation link, then come back to sign in.");
       }
     } catch (err) {
