@@ -26,26 +26,32 @@ export default function Signup() {
     }
     setLoading(true);
     try {
-      const { error } = await supabase.auth.signUp({
+      const { data, error } = await supabase.auth.signUp({
         email: form.email,
         password: form.password,
         options: {
-          data: {
-            name: form.name,
-          }
+          data: { name: form.name }
         }
       });
-      
+
       if (error) throw error;
-      
-      setSuccess("Account created! Redirecting to login…");
-      setTimeout(() => navigate("/login"), 1500);
+
+      if (data.session) {
+        // Email confirmation is OFF — user is immediately signed in.
+        // Store name and go straight to dashboard.
+        localStorage.setItem("userName", data.user?.user_metadata?.name || data.user?.email || form.name);
+        navigate("/dashboard");
+      } else {
+        // Email confirmation is ON — user must verify email before logging in.
+        setSuccess("Account created! Please check your email inbox and click the confirmation link, then come back to sign in.");
+      }
     } catch (err) {
       setError(err.message || "Registration failed. Please try again.");
     } finally {
       setLoading(false);
     }
   };
+
 
   const handleOAuthLogin = async (provider) => {
     try {
