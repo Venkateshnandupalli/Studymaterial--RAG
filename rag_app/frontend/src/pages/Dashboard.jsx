@@ -498,7 +498,6 @@ export default function Dashboard() {
           </div>
         </div>
       )}
-    </div>
 
       {/* ── SET PASSWORD MODAL ──────────────────────────────────── */}
       {showSetPassword && (
@@ -551,5 +550,6 @@ export default function Dashboard() {
           </div>
         </div>
       )}
+    </div>
   );
 }
