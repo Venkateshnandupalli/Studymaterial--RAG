@@ -65,12 +65,7 @@ export default function Dashboard() {
   const [loadingQuiz, setLoadingQuiz] = useState(false);
   const [quizFinished, setQuizFinished] = useState(false);
 
-  // Set Password modal state
-  const [showSetPassword, setShowSetPassword] = useState(false);
-  const [pwForm, setPwForm] = useState({ password: "", confirm: "" });
-  const [pwLoading, setPwLoading] = useState(false);
-  const [pwError, setPwError] = useState("");
-  const [pwSuccess, setPwSuccess] = useState("");
+
 
   const containerRef = useRef(null);
   const chatEndRef = useRef(null);
@@ -100,26 +95,7 @@ export default function Dashboard() {
     navigate("/login");
   };
 
-  const handleSetPassword = async (e) => {
-    e.preventDefault();
-    setPwError("");
-    setPwSuccess("");
-    if (!pwForm.password.trim()) { setPwError("Please enter a password."); return; }
-    if (pwForm.password.length < 6) { setPwError("Password must be at least 6 characters."); return; }
-    if (pwForm.password !== pwForm.confirm) { setPwError("Passwords do not match."); return; }
-    setPwLoading(true);
-    try {
-      const { supabase } = await import("../services/supabase");
-      const { error } = await supabase.auth.updateUser({ password: pwForm.password });
-      if (error) throw error;
-      setPwSuccess("✅ Password set! You can now sign in with email + password anytime.");
-      setPwForm({ password: "", confirm: "" });
-    } catch (err) {
-      setPwError(err.message || "Failed to set password. Please try again.");
-    } finally {
-      setPwLoading(false);
-    }
-  };
+
 
   const handleFileChange = async (e) => {
     const file = e.target.files?.[0];
@@ -238,14 +214,7 @@ export default function Dashboard() {
               <div className="user-avatar-pro"><Icons.User /></div>
               <span className="user-name-text">{userName}</span>
             </div>
-            <button
-              className="logout-btn pro-logout"
-              onClick={() => { setShowSetPassword(true); setPwError(""); setPwSuccess(""); setPwForm({ password: "", confirm: "" }); }}
-              title="Set / Change Password"
-              style={{ marginRight: 4 }}
-            >
-              <Icons.Key />
-            </button>
+
             <button className="logout-btn pro-logout" onClick={handleLogout} title="Sign Out">
               <Icons.LogOut />
             </button>
@@ -499,57 +468,7 @@ export default function Dashboard() {
         </div>
       )}
 
-      {/* ── SET PASSWORD MODAL ──────────────────────────────────── */}
-      {showSetPassword && (
-        <div className="study-modal-overlay" onClick={() => setShowSetPassword(false)}>
-          <div className="study-modal pro-modal" onClick={e => e.stopPropagation()} style={{ maxWidth: 420 }}>
-            <div className="study-modal-header">
-              <div className="study-modal-title"><Icons.Key /> &nbsp;Set / Change Password</div>
-              <button className="close-modal-btn" onClick={() => setShowSetPassword(false)}><Icons.Close /></button>
-            </div>
-            <div className="study-modal-body" style={{ padding: "24px" }}>
-              <p style={{ color: "var(--text-muted, #aaa)", fontSize: 14, marginBottom: 20, lineHeight: 1.5 }}>
-                Set a password so you can also sign in with <strong>email + password</strong> — in addition to Google/GitHub.
-              </p>
-              {pwError && <div className="alert alert-error" style={{ marginBottom: 14 }}>⚠️ {pwError}</div>}
-              {pwSuccess && <div className="alert alert-success" style={{ marginBottom: 14 }}>{pwSuccess}</div>}
-              {!pwSuccess && (
-                <form onSubmit={handleSetPassword}>
-                  <div style={{ marginBottom: 14 }}>
-                    <label style={{ display: "block", fontSize: 13, marginBottom: 6, color: "var(--text-muted, #aaa)" }}>New Password</label>
-                    <input
-                      type="password"
-                      className="form-input"
-                      placeholder="At least 6 characters"
-                      value={pwForm.password}
-                      onChange={e => setPwForm(p => ({ ...p, password: e.target.value }))}
-                      autoFocus
-                      style={{ width: "100%" }}
-                    />
-                  </div>
-                  <div style={{ marginBottom: 20 }}>
-                    <label style={{ display: "block", fontSize: 13, marginBottom: 6, color: "var(--text-muted, #aaa)" }}>Confirm Password</label>
-                    <input
-                      type="password"
-                      className="form-input"
-                      placeholder="Repeat password"
-                      value={pwForm.confirm}
-                      onChange={e => setPwForm(p => ({ ...p, confirm: e.target.value }))}
-                      style={{ width: "100%" }}
-                    />
-                  </div>
-                  <button className="btn btn-primary" type="submit" disabled={pwLoading} style={{ width: "100%" }}>
-                    {pwLoading ? <><span className="spinner" /> Saving…</> : "Set Password →"}
-                  </button>
-                </form>
-              )}
-              {pwSuccess && (
-                <button className="btn btn-primary" onClick={() => setShowSetPassword(false)} style={{ width: "100%" }}>Done</button>
-              )}
-            </div>
-          </div>
-        </div>
-      )}
+
     </div>
   );
 }
