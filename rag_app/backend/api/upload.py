@@ -94,7 +94,7 @@ async def upload_file(
     supabase.table("documents").insert({
         "id": doc_id,
         "file_name": file.filename,
-        "user_email": current_user["sub"],
+        "user_email": current_user["email"],
         "status": "PROCESSING",
     }).execute()
 
@@ -111,7 +111,7 @@ def list_documents(current_user: dict = Depends(get_current_user)):
     """List all documents uploaded by the current user."""
     result = supabase.table("documents") \
         .select("id, file_name, status, created_at") \
-        .eq("user_email", current_user["sub"]) \
+        .or_(f"user_email.eq.{current_user['email']},user_email.eq.{current_user['sub']}") \
         .order("created_at", desc=True) \
         .execute()
     return {"documents": result.data or []}
@@ -124,7 +124,7 @@ def delete_document(doc_id: str, current_user: dict = Depends(get_current_user))
     doc_res = supabase.table("documents") \
         .select("id") \
         .eq("id", doc_id) \
-        .eq("user_email", current_user["sub"]) \
+        .or_(f"user_email.eq.{current_user['email']},user_email.eq.{current_user['sub']}") \
         .execute()
     
     if not doc_res.data:

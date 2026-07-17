@@ -6,6 +6,7 @@ import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
 import LandingPage from "./pages/LandingPage";
 import AuthCallback from "./pages/AuthCallback";
+import ResetPassword from "./pages/ResetPassword";
 
 function PrivateRoute({ children, session }) {
   return session ? children : <Navigate to="/login" replace />;
@@ -45,6 +46,7 @@ function App() {
         <Route path="/login" element={<Login />} />
         {/* OAuth PKCE callback — Supabase exchanges the ?code= here */}
         <Route path="/auth/callback" element={<AuthCallback />} />
+        <Route path="/reset-password" element={<ResetPassword />} />
         <Route
           path="/dashboard"
           element={

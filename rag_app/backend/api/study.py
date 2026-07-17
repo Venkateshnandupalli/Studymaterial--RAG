@@ -22,7 +22,7 @@ def generate_flashcards(doc_id: str, current_user: dict = Depends(get_current_us
     
     if not doc_res.data:
         raise HTTPException(status_code=404, detail="Document not found")
-    if doc_res.data[0]["user_email"] != current_user["sub"]:
+    if doc_res.data[0]["user_email"] not in (current_user["email"], current_user["sub"]):
         raise HTTPException(status_code=403, detail="Access denied to this document")
     if doc_res.data[0]["status"] != "READY":
         raise HTTPException(status_code=400, detail="Document is still processing. Please try again in a moment.")
@@ -82,7 +82,7 @@ def generate_quiz(doc_id: str, current_user: dict = Depends(get_current_user)):
     
     if not doc_res.data:
         raise HTTPException(status_code=404, detail="Document not found")
-    if doc_res.data[0]["user_email"] != current_user["sub"]:
+    if doc_res.data[0]["user_email"] not in (current_user["email"], current_user["sub"]):
         raise HTTPException(status_code=403, detail="Access denied to this document")
     if doc_res.data[0]["status"] != "READY":
         raise HTTPException(status_code=400, detail="Document is still processing. Please try again in a moment.")
