@@ -15,7 +15,8 @@ const Icons = {
   Bot: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="10" rx="2"/><circle cx="12" cy="5" r="2"/><path d="M12 7v4"/><line x1="8" y1="16" x2="8" y2="16"/><line x1="16" y1="16" x2="16" y2="16"/></svg>,
   User: () => <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>,
   Close: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>,
-  LogOut: () => <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+  LogOut: () => <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>,
+  Key: () => <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="7.5" cy="15.5" r="5.5"/><path d="M21 2l-9.6 9.6"/><path d="M15.5 7.5l3 3L22 7l-3-3"/></svg>
 };
 
 function StatusBadge({ status }) {
@@ -64,6 +65,13 @@ export default function Dashboard() {
   const [loadingQuiz, setLoadingQuiz] = useState(false);
   const [quizFinished, setQuizFinished] = useState(false);
 
+  // Set Password modal state
+  const [showSetPassword, setShowSetPassword] = useState(false);
+  const [pwForm, setPwForm] = useState({ password: "", confirm: "" });
+  const [pwLoading, setPwLoading] = useState(false);
+  const [pwError, setPwError] = useState("");
+  const [pwSuccess, setPwSuccess] = useState("");
+
   const containerRef = useRef(null);
   const chatEndRef = useRef(null);
   const pollRef = useRef(null);
@@ -90,6 +98,27 @@ export default function Dashboard() {
     await supabase.auth.signOut();
     localStorage.removeItem("userName");
     navigate("/login");
+  };
+
+  const handleSetPassword = async (e) => {
+    e.preventDefault();
+    setPwError("");
+    setPwSuccess("");
+    if (!pwForm.password.trim()) { setPwError("Please enter a password."); return; }
+    if (pwForm.password.length < 6) { setPwError("Password must be at least 6 characters."); return; }
+    if (pwForm.password !== pwForm.confirm) { setPwError("Passwords do not match."); return; }
+    setPwLoading(true);
+    try {
+      const { supabase } = await import("../services/supabase");
+      const { error } = await supabase.auth.updateUser({ password: pwForm.password });
+      if (error) throw error;
+      setPwSuccess("✅ Password set! You can now sign in with email + password anytime.");
+      setPwForm({ password: "", confirm: "" });
+    } catch (err) {
+      setPwError(err.message || "Failed to set password. Please try again.");
+    } finally {
+      setPwLoading(false);
+    }
   };
 
   const handleFileChange = async (e) => {
@@ -209,6 +238,14 @@ export default function Dashboard() {
               <div className="user-avatar-pro"><Icons.User /></div>
               <span className="user-name-text">{userName}</span>
             </div>
+            <button
+              className="logout-btn pro-logout"
+              onClick={() => { setShowSetPassword(true); setPwError(""); setPwSuccess(""); setPwForm({ password: "", confirm: "" }); }}
+              title="Set / Change Password"
+              style={{ marginRight: 4 }}
+            >
+              <Icons.Key />
+            </button>
             <button className="logout-btn pro-logout" onClick={handleLogout} title="Sign Out">
               <Icons.LogOut />
             </button>
@@ -462,5 +499,57 @@ export default function Dashboard() {
         </div>
       )}
     </div>
+
+      {/* ── SET PASSWORD MODAL ──────────────────────────────────── */}
+      {showSetPassword && (
+        <div className="study-modal-overlay" onClick={() => setShowSetPassword(false)}>
+          <div className="study-modal pro-modal" onClick={e => e.stopPropagation()} style={{ maxWidth: 420 }}>
+            <div className="study-modal-header">
+              <div className="study-modal-title"><Icons.Key /> &nbsp;Set / Change Password</div>
+              <button className="close-modal-btn" onClick={() => setShowSetPassword(false)}><Icons.Close /></button>
+            </div>
+            <div className="study-modal-body" style={{ padding: "24px" }}>
+              <p style={{ color: "var(--text-muted, #aaa)", fontSize: 14, marginBottom: 20, lineHeight: 1.5 }}>
+                Set a password so you can also sign in with <strong>email + password</strong> — in addition to Google/GitHub.
+              </p>
+              {pwError && <div className="alert alert-error" style={{ marginBottom: 14 }}>⚠️ {pwError}</div>}
+              {pwSuccess && <div className="alert alert-success" style={{ marginBottom: 14 }}>{pwSuccess}</div>}
+              {!pwSuccess && (
+                <form onSubmit={handleSetPassword}>
+                  <div style={{ marginBottom: 14 }}>
+                    <label style={{ display: "block", fontSize: 13, marginBottom: 6, color: "var(--text-muted, #aaa)" }}>New Password</label>
+                    <input
+                      type="password"
+                      className="form-input"
+                      placeholder="At least 6 characters"
+                      value={pwForm.password}
+                      onChange={e => setPwForm(p => ({ ...p, password: e.target.value }))}
+                      autoFocus
+                      style={{ width: "100%" }}
+                    />
+                  </div>
+                  <div style={{ marginBottom: 20 }}>
+                    <label style={{ display: "block", fontSize: 13, marginBottom: 6, color: "var(--text-muted, #aaa)" }}>Confirm Password</label>
+                    <input
+                      type="password"
+                      className="form-input"
+                      placeholder="Repeat password"
+                      value={pwForm.confirm}
+                      onChange={e => setPwForm(p => ({ ...p, confirm: e.target.value }))}
+                      style={{ width: "100%" }}
+                    />
+                  </div>
+                  <button className="btn btn-primary" type="submit" disabled={pwLoading} style={{ width: "100%" }}>
+                    {pwLoading ? <><span className="spinner" /> Saving…</> : "Set Password →"}
+                  </button>
+                </form>
+              )}
+              {pwSuccess && (
+                <button className="btn btn-primary" onClick={() => setShowSetPassword(false)} style={{ width: "100%" }}>Done</button>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
   );
 }
