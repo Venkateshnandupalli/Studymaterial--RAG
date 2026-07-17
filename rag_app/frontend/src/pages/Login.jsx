@@ -24,7 +24,17 @@ export default function Login() {
         email: form.email,
         password: form.password,
       });
-      if (error) throw error;
+      if (error) {
+        const msg = error.message?.toLowerCase() || "";
+        if (msg.includes("invalid login credentials") || msg.includes("invalid credentials")) {
+          setError("Invalid email or password. If you signed up with Google or GitHub, please use those buttons above to sign in.");
+        } else if (msg.includes("email not confirmed")) {
+          setError("Please confirm your email first — check your inbox for a confirmation link.");
+        } else {
+          throw error;
+        }
+        return;
+      }
       
       const { user } = data;
       localStorage.setItem("userName", user.user_metadata?.name || user.email);
